@@ -37,16 +37,25 @@ endif
 OBJECT_FILES= trexio.o trexio_text.o trexio_hdf5.o
 SOURCE_FILES= test.c trexio.c trexio_hdf5.c trexio_text.c
 HEADER_FILES= trexio.h trexio_text.h trexio_hdf5.h trexio_s.h
+ORG_FILES= templates_front/templator_front.org  templates_text/templator_text.org \
+           templates_hdf5/templator_hdf5.org
+
 
 export CC CFLAGS FC FFLAGS LIBS
 
 .PHONY: clean
 
-libtrexio.so: $(OBJECT_FILES) $(HEADER_FILES) cppcheck.out
+
+libtrexio.so: $(OBJECT_FILES) $(HEADER_FILES) 
 	$(CC) -shared $(OBJECT_FILES) -o libtrexio.so
 
-fortran: libtrexio.so trexio_f.f90
+
+fortran: trexio_f.o
+
+
+trexio_f.o: libtrexio.so trexio_f.f90
 	$(FC) $(FFLAGS) -c trexio_f.f90 -o trexio_f.o
+
 
 python: libtrexio.so pytrexio.i
 	swig -python pytrexio.i
@@ -55,17 +64,29 @@ python: libtrexio.so pytrexio.i
 	$(CC) -shared trexio.o trexio_hdf5.o trexio_text.o pytrexio_wrap.o \
 		-L/usr/lib/x86_64-linux-gnu/hdf5/serial/ -lz -lm -lhdf5 -lhdf5_hl -o _pytrexio.so
 
+
+check: cppcheck.out
+	cat cppcheck.out
+
+
 cppcheck.out: $(HEADER_FILES) $(SOURCE_FILES)
 	cppcheck --addon=cert -q --error-exitcode=0  \
           --enable=warning,performance,portability,missingInclude,information \
           --language=c --std=c99 -rp --platform=unix64  \
           $(INCLUDE) $(SOURCE_FILES) 2>$@
 
+
+trexio.c trexio_f.f90 trexio.h: $(ORG_FILES)
+	./build_trex.sh
+
+
 test_c: libtrexio.so test.c
 	$(CC) $(CFLAGS) $(INCLUDE) -Wl,-rpath,$(PWD) -L. test.c -ltrexio $(LIBS) -o test_c
 
-test_f: libtrexio.so test.f90 trexio_f.o
+
+test_f: libtrexio.so test.f90 trexio_f.o 
 	$(FC) $(FFLAGS) $(INCLUDE) -Wl,-rpath,$(PWD) -L. test.f90 trexio_f.o -ltrexio $(LIBS) -o test_f
+
 
 test: test_c test_f
 	$(RM) -r trexio_test
@@ -78,6 +99,7 @@ clean:
 	$(RM) pytrexio.py pytrexio_wrap.c _pytrexio.so
 	$(RM) cppcheck.out
 	$(RM) -r trexio_test/ trexio_test_fort/ trexio_test_py/
+
 
 %.o: %.c $(HEADER_FILES)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $*.c -o $*.o
