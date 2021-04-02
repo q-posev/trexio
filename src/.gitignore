@@ -20,6 +20,14 @@ trexio_hdf5.c
 trexio_f.f90
 trexio.mod
 
+cppcheck.out
+
+__pycache__/
+
+pytrexio.py
+pytrexio_wrap.c
+_pytrexio.so
+
 test
 test_f
 *.h5
