@@ -1,5 +1,4 @@
 import pytrexio as tr
-import numpy as np
 
 txt = tr.trexio_open('trexio_test_py','w',1)
 
