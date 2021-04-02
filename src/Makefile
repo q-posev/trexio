@@ -48,6 +48,13 @@ libtrexio.so: $(OBJECT_FILES) $(HEADER_FILES) cppcheck.out
 fortran: libtrexio.so trexio_f.f90
 	$(FC) $(FFLAGS) -c trexio_f.f90 -o trexio_f.o
 
+python: libtrexio.so pytrexio.i
+	swig -python pytrexio.i
+	$(CC) -fpic $(INCLUDE) -I/usr/include/python3.6 \
+		-c trexio.c trexio_hdf5.c trexio_text.c pytrexio_wrap.c
+	$(CC) -shared trexio.o trexio_hdf5.o trexio_text.o pytrexio_wrap.o \
+		-L/usr/lib/x86_64-linux-gnu/hdf5/serial/ -lz -lm -lhdf5 -lhdf5_hl -o _pytrexio.so
+
 cppcheck.out: $(HEADER_FILES) $(SOURCE_FILES)
 	cppcheck --addon=cert -q --error-exitcode=0  \
           --enable=warning,performance,portability,missingInclude,information \
@@ -68,7 +75,9 @@ test: test_c test_f
 
 clean:
 	$(RM) *.o libtrexio.so test_*.h5 test_f test_c
-	$(RM) -r trexio_test/ trexio_test_fort/
+	$(RM) pytrexio.py pytrexio_wrap.c _pytrexio.so
+	$(RM) cppcheck.out
+	$(RM) -r trexio_test/ trexio_test_fort/ trexio_test_py/
 
 %.o: %.c $(HEADER_FILES)
 	$(CC) $(CFLAGS) $(INCLUDE) -c $*.c -o $*.o
