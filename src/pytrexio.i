@@ -1,19 +1,23 @@
 %module pytrexio
 #define SWIGWORDSIZE64
-
 %{
-/* Includes the header in the wrapper code */
+/* Include the headers in the wrapper code */
 #include "trexio.h"
 #include "trexio_s.h"
 #include "trexio_private.h"
 #include "trexio_text.h"
 #include "trexio_hdf5.h"
 %}
- 
-/* Parse the header file to generate wrappers */
+/* Include stdint to recognize types from stdint.h */
 %include <stdint.i>
+/* Include carrays to work with C-like arrays */
 %include "carrays.i"
+/* Include classes that correspond to integer and float arrays */
 %array_class(double, doubleArray);
+%array_class(float, floatArray);
+%array_class(int32_t, int32Array);
+%array_class(int64_t, int64Array);
+/* Parse the header files to generate wrappers */
 %include "trexio.h"
 %include "trexio_s.h"
 %include "trexio_private.h"
