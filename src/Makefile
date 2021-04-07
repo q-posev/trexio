@@ -9,7 +9,7 @@ CFLAGS=-fPIC -fexceptions -Wall -Werror -Wpedantic -Wextra
 FC=gfortran -g
 FFLAGS=-fPIC -fcheck=all -Waliasing -Wampersand -Wconversion -Wsurprising -Wintrinsics-std -Wno-tabs -Wintrinsic-shadow -Wline-truncation -Wreal-q-constant -Wuninitialized  -fbacktrace -ffpe-trap=zero,overflow,underflow -finit-real=nan
 
-LIBS= -L/usr/lib/x86_64-linux-gnu/hdf5/serial/ -lz -lm -lhdf5 -lhdf5_hl -lgfortran
+LIBS= -L/usr/lib/x86_64-linux-gnu/hdf5/serial/ -lz -lhdf5 -lhdf5_hl
 INCLUDE     = -I/usr/include/hdf5/serial
 endif
 
