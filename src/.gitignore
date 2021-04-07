@@ -25,4 +25,9 @@ test_f
 *.h5
 trexio_test/
 trexio_test_fort/
+trexio_test_py/
 
+_pytrexio.so
+pytrexio.py
+pytrexio_wrap.c
+__pycache__/
