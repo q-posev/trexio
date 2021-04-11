@@ -954,18 +954,18 @@ end interface
 
      #+begin_src c :tangle hrw_dset_front.h
 trexio_exit_code trexio_has_$group$_$group_dset$(trexio_t* const file);
-trexio_exit_code trexio_read_$group$_$group_dset$(trexio_t* const file, $group_dset_dtype_double$* const $group_dset$);
-trexio_exit_code trexio_write_$group$_$group_dset$(trexio_t* const file, const $group_dset_dtype_double$* $group_dset$);
-trexio_exit_code trexio_read_$group$_$group_dset$_32(trexio_t* const file, $group_dset_dtype_single$* const $group_dset$);
-trexio_exit_code trexio_write_$group$_$group_dset$_32(trexio_t* const file, const $group_dset_dtype_single$* $group_dset$);
-trexio_exit_code trexio_read_$group$_$group_dset$_64(trexio_t* const file, $group_dset_dtype_double$* const $group_dset$);
-trexio_exit_code trexio_write_$group$_$group_dset$_64(trexio_t* const file, const $group_dset_dtype_double$* $group_dset$);
+trexio_exit_code trexio_read_$group$_$group_dset$(trexio_t* const file, $group_dset_dtype_double$* const dataset);
+trexio_exit_code trexio_write_$group$_$group_dset$(trexio_t* const file, const $group_dset_dtype_double$* dataset);
+trexio_exit_code trexio_read_$group$_$group_dset$_32(trexio_t* const file, $group_dset_dtype_single$* const dataset);
+trexio_exit_code trexio_write_$group$_$group_dset$_32(trexio_t* const file, const $group_dset_dtype_single$* dataset);
+trexio_exit_code trexio_read_$group$_$group_dset$_64(trexio_t* const file, $group_dset_dtype_double$* const dataset);
+trexio_exit_code trexio_write_$group$_$group_dset$_64(trexio_t* const file, const $group_dset_dtype_double$* dataset);
      #+end_src
 
      #+begin_src c :tangle read_dset_64_front.c
-trexio_exit_code trexio_read_$group$_$group_dset$_64(trexio_t* const file, $group_dset_dtype_double$* const $group_dset$) {
+trexio_exit_code trexio_read_$group$_$group_dset$_64(trexio_t* const file, $group_dset_dtype_double$* const dataset) {
   if (file  == NULL) return TREXIO_INVALID_ARG_1;
-  if ($group_dset$ == NULL) return TREXIO_INVALID_ARG_2;
+  if (dataset == NULL) return TREXIO_INVALID_ARG_2;
 
   trexio_exit_code rc;
   int64_t $group_dset_dim$ = 0;
@@ -981,15 +981,15 @@ trexio_exit_code trexio_read_$group$_$group_dset$_64(trexio_t* const file, $grou
   switch (file->back_end) {
 
   case TREXIO_TEXT:
-    return trexio_text_read_$group$_$group_dset$(file, $group_dset$, rank, dims);
+    return trexio_text_read_$group$_$group_dset$(file, dataset, rank, dims);
     break;
 
   case TREXIO_HDF5:
-    return trexio_hdf5_read_$group$_$group_dset$(file, $group_dset$, rank, dims);
+    return trexio_hdf5_read_$group$_$group_dset$(file, dataset, rank, dims);
     break;
 /*
   case TREXIO_JSON:
-    return trexio_json_read_$group$_$group_dset$(file, $group_dset$, rank, dims);
+    return trexio_json_read_$group$_$group_dset$(file, dataset, rank, dims);
     break;
 ,*/
   default:
@@ -999,9 +999,9 @@ trexio_exit_code trexio_read_$group$_$group_dset$_64(trexio_t* const file, $grou
      #+end_src
 
      #+begin_src c :tangle write_dset_64_front.c
-trexio_exit_code trexio_write_$group$_$group_dset$_64(trexio_t* const file, const $group_dset_dtype_double$* $group_dset$) {
+trexio_exit_code trexio_write_$group$_$group_dset$_64(trexio_t* const file, const $group_dset_dtype_double$* dataset) {
   if (file  == NULL) return TREXIO_INVALID_ARG_1;
-  if ($group_dset$ == NULL) return TREXIO_INVALID_ARG_2;
+  if (dataset == NULL) return TREXIO_INVALID_ARG_2;
 
   trexio_exit_code rc;
   int64_t $group_dset_dim$ = 0;
@@ -1017,15 +1017,15 @@ trexio_exit_code trexio_write_$group$_$group_dset$_64(trexio_t* const file, cons
   switch (file->back_end) {
 
   case TREXIO_TEXT:
-    return trexio_text_write_$group$_$group_dset$(file, $group_dset$, rank, dims);
+    return trexio_text_write_$group$_$group_dset$(file, dataset, rank, dims);
     break;
 
   case TREXIO_HDF5:
-    return trexio_hdf5_write_$group$_$group_dset$(file, $group_dset$, rank, dims);
+    return trexio_hdf5_write_$group$_$group_dset$(file, dataset, rank, dims);
     break;
 /*
   case TREXIO_JSON:
-    return trexio_json_write_$group$_$group_dset$(file, $group_dset$, rank, dims);
+    return trexio_json_write_$group$_$group_dset$(file, dataset, rank, dims);
     break;
 ,*/
   default:
@@ -1035,9 +1035,9 @@ trexio_exit_code trexio_write_$group$_$group_dset$_64(trexio_t* const file, cons
      #+end_src
 
      #+begin_src c :tangle read_dset_32_front.c
-trexio_exit_code trexio_read_$group$_$group_dset$_32(trexio_t* const file, $group_dset_dtype_single$* const $group_dset$) {
+trexio_exit_code trexio_read_$group$_$group_dset$_32(trexio_t* const file, $group_dset_dtype_single$* const dataset) {
   if (file  == NULL) return TREXIO_INVALID_ARG_1;
-  if ($group_dset$ == NULL) return TREXIO_INVALID_ARG_2;
+  if (dataset == NULL) return TREXIO_INVALID_ARG_2;
 
   trexio_exit_code rc;
   int64_t $group_dset_dim$ = 0;
@@ -1055,21 +1055,21 @@ trexio_exit_code trexio_read_$group$_$group_dset$_32(trexio_t* const file, $grou
     dim_size *= dims[i];
   }
 
-  $group_dset_dtype_double$* $group_dset$_64 = CALLOC(dim_size, $group_dset_dtype_double$);
-  if ($group_dset$_64 == NULL) return TREXIO_ALLOCATION_FAILED;
+  $group_dset_dtype_double$* dataset_64 = CALLOC(dim_size, $group_dset_dtype_double$);
+  if (dataset_64 == NULL) return TREXIO_ALLOCATION_FAILED;
 
   switch (file->back_end) {
 
   case TREXIO_TEXT:
-    rc = trexio_text_read_$group$_$group_dset$(file, $group_dset$_64, rank, dims);
+    rc = trexio_text_read_$group$_$group_dset$(file, dataset_64, rank, dims);
     break;
 
   case TREXIO_HDF5:
-    rc = trexio_hdf5_read_$group$_$group_dset$(file, $group_dset$_64, rank, dims);
+    rc = trexio_hdf5_read_$group$_$group_dset$(file, dataset_64, rank, dims);
     break;
 /*
   case TREXIO_JSON:
-    rc = trexio_json_read_$group$_$group_dset$(file, $group_dset$_64, rank, dims);
+    rc = trexio_json_read_$group$_$group_dset$(file, dataset_64, rank, dims);
     break;
 ,*/
   default:
@@ -1077,23 +1077,23 @@ trexio_exit_code trexio_read_$group$_$group_dset$_32(trexio_t* const file, $grou
   }
 
   if (rc != TREXIO_SUCCESS){
-    FREE($group_dset$_64);
+    FREE(dataset_64);
     return rc;
   }
 
   for (uint64_t i=0; i<dim_size; ++i){
-    $group_dset$[i] = ($group_dset_dtype_single$) $group_dset$_64[i];
+    dataset[i] = ($group_dset_dtype_single$) dataset_64[i];
   }
 
-  FREE($group_dset$_64);
+  FREE(dataset_64);
   return TREXIO_SUCCESS;
 }
      #+end_src
 
      #+begin_src c :tangle write_dset_32_front.c
-trexio_exit_code trexio_write_$group$_$group_dset$_32(trexio_t* const file, const $group_dset_dtype_single$* $group_dset$) {
+trexio_exit_code trexio_write_$group$_$group_dset$_32(trexio_t* const file, const $group_dset_dtype_single$* dataset) {
   if (file  == NULL) return TREXIO_INVALID_ARG_1;
-  if ($group_dset$ == NULL) return TREXIO_INVALID_ARG_2;
+  if (dataset == NULL) return TREXIO_INVALID_ARG_2;
 
   trexio_exit_code rc;
   int64_t $group_dset_dim$ = 0;
@@ -1111,33 +1111,33 @@ trexio_exit_code trexio_write_$group$_$group_dset$_32(trexio_t* const file, cons
     dim_size *= dims[i];
   }
 
-  $group_dset_dtype_double$* $group_dset$_64 = CALLOC(dim_size, $group_dset_dtype_double$);
-  if ($group_dset$_64 == NULL) return TREXIO_ALLOCATION_FAILED;
+  $group_dset_dtype_double$* dataset_64 = CALLOC(dim_size, $group_dset_dtype_double$);
+  if (dataset_64 == NULL) return TREXIO_ALLOCATION_FAILED;
 
   /* A type conversion from single precision to double reqired since back end only accepts 64-bit data */
   for (uint64_t i=0; i<dim_size; ++i){
-    $group_dset$_64[i] = ($group_dset_dtype_double$) $group_dset$[i];
+    dataset_64[i] = ($group_dset_dtype_double$) dataset[i];
   }
 
   switch (file->back_end) {
 
   case TREXIO_TEXT:
-    rc = trexio_text_write_$group$_$group_dset$(file, $group_dset$_64, rank, dims);
+    rc = trexio_text_write_$group$_$group_dset$(file, dataset_64, rank, dims);
     break;
 
   case TREXIO_HDF5:
-    rc = trexio_hdf5_write_$group$_$group_dset$(file, $group_dset$_64, rank, dims);
+    rc = trexio_hdf5_write_$group$_$group_dset$(file, dataset_64, rank, dims);
     break;
 /*
   case TREXIO_JSON:
-    rc = trexio_json_write_$group$_$group_dset$(file, $group_dset$_64, rank, dims);
+    rc = trexio_json_write_$group$_$group_dset$(file, dataset_64, rank, dims);
     break;
 ,*/
   default:
     return TREXIO_FAILURE;  /* Impossible case */
   }
 
-  FREE($group_dset$_64);
+  FREE(dataset_64);
 
   if (rc != TREXIO_SUCCESS) return rc;
 
@@ -1146,14 +1146,14 @@ trexio_exit_code trexio_write_$group$_$group_dset$_32(trexio_t* const file, cons
      #+end_src
 
      #+begin_src c :tangle read_dset_def_front.c
-trexio_exit_code trexio_read_$group$_$group_dset$(trexio_t* const file, $group_dset_dtype_double$* const $group_dset$) {
-  return trexio_read_$group$_$group_dset$_64(file, $group_dset$);
+trexio_exit_code trexio_read_$group$_$group_dset$(trexio_t* const file, $group_dset_dtype_double$* const dataset) {
+  return trexio_read_$group$_$group_dset$_64(file, dataset);
 }
      #+end_src
 
      #+begin_src c :tangle write_dset_def_front.c
-trexio_exit_code trexio_write_$group$_$group_dset$(trexio_t* const file, const $group_dset_dtype_double$* $group_dset$) {
-  return trexio_write_$group$_$group_dset$_64(file, $group_dset$);
+trexio_exit_code trexio_write_$group$_$group_dset$(trexio_t* const file, const $group_dset_dtype_double$* dataset) {
+  return trexio_write_$group$_$group_dset$_64(file, dataset);
 }
      #+end_src
 

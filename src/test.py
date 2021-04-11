@@ -1,13 +1,16 @@
 import pytrexio as tr
+import faulthandler 
+import numpy as np
+faulthandler.enable()
 
 txt = tr.trexio_open('trexio_test_py','w',1)
 
-num = 2
+num = 4
 rc = tr.trexio_write_nucleus_num(txt, num)
 assert rc==0
 
-charges = tr.doubleArray(2)
-for i in range(2):
+charges = tr.doubleArray(num)
+for i in range(num):
     charges[i] = 6.
 
 rc = tr.trexio_write_nucleus_charge(txt, charges)
@@ -18,18 +21,18 @@ assert rc==0
 
 txt2 = tr.trexio_open('trexio_test_py','r',1)
 
-num2 = -1
-#rc = tr.trexio_read_nucleus_num(txt2, num2)
-#assert rc==0
-#assert num2==num
+result = tr.trexio_read_nucleus_num(txt2)
+assert result[0]==0
+assert result[1]==num
+print(result)
 
-charges2 = tr.doubleArray(2)
-for i in range(2):
+charges2 = tr.doubleArray(num)
+for i in range(num):
     charges2[i] = -1.
 
 rc = tr.trexio_read_nucleus_charge(txt2, charges2)
 assert rc==0
-for i in range(2):
+for i in range(num):
     assert charges2[i]==charges[i]
 
 rc = tr.trexio_close(txt2)
