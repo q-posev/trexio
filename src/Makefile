@@ -93,7 +93,7 @@ test: test_c test_f
 	$(RM) -r trexio_test_fort
 	./test_c
 	./test_f
-	python3 test.py
+	python3 test.py 4
 
 clean:
 	$(RM) *.o libtrexio.so test_*.h5 test_f test_c

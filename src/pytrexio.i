@@ -1,4 +1,5 @@
 %module pytrexio
+/* Define SWIGWORDSIZE in order to properly align long integers on 64-bit system */
 #define SWIGWORDSIZE64
 %{
 /* Include the headers in the wrapper code */
@@ -17,14 +18,19 @@
 %array_class(float, floatArray);
 %array_class(int32_t, int32Array);
 %array_class(int64_t, int64Array);
-/* Include typemaps to play with output and input re-casting */
+/* Include typemaps to play with input/output re-casting 
+   Useful when working with C pointers
+*/
 %include typemaps.i
-/* Redefine the int32_t* and int64_t* num to be output */
+/* Redefine the int32_t* and int64_t* num to be output 
+   Useful for TREXIO read_num functions where the 
+   num variable is modified by address
+*/
 %apply int *OUTPUT { int32_t* const num};
 %apply int *OUTPUT { int64_t* const num};
 /*
-%apply double *INOUT { float* const dataset};
-%apply double *INOUT { double* const dataset};
+Does not work for arrays (SIGSEGV)
+%apply double *OUTPUT { double* const dataset };
 */
 /* Parse the header files to generate wrappers */
 %include "trexio.h"

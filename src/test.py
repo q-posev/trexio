@@ -1,11 +1,11 @@
 import pytrexio as tr
-import faulthandler 
-import numpy as np
-faulthandler.enable()
+from sys import argv
+
+assert len(argv) > 1, 'Specify number of nuclei'
+num = int(argv[1])
 
 txt = tr.trexio_open('trexio_test_py','w',1)
 
-num = 4
 rc = tr.trexio_write_nucleus_num(txt, num)
 assert rc==0
 
