@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-01-07 Fri 15:10 -->
+<!-- 2022-01-07 Fri 15:31 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>HDF5 back end</title>
@@ -311,29 +311,29 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org54ed73b">1. HDF5 back end</a>
+<li><a href="#orgd21a92e">1. HDF5 back end</a>
 <ul>
-<li><a href="#org2d21d94">1.1. Template for HDF5 definitions</a></li>
-<li><a href="#org5652f0f">1.2. Template for HDF5 structures</a></li>
-<li><a href="#org50e6566">1.3. Template for HDF5 init/deinit</a></li>
-<li><a href="#orgdd6847e">1.4. Template for HDF5 has/read/write the numerical attribute</a></li>
-<li><a href="#orgffdb42b">1.5. Template for HDF5 has/read/write the dataset of numerical data</a></li>
-<li><a href="#orgf2d335e">1.6. Template for HDF5 has/read/write the dataset of sparse data</a></li>
-<li><a href="#org82b1cb1">1.7. Template for HDF5 has/read/write the dataset of strings</a></li>
-<li><a href="#org9fa9b36">1.8. Template for HDF5 has/read/write the string attribute</a></li>
-<li><a href="#org89be838">1.9. Helper functions</a></li>
+<li><a href="#org7bbeabf">1.1. Template for HDF5 definitions</a></li>
+<li><a href="#org7aa4760">1.2. Template for HDF5 structures</a></li>
+<li><a href="#org4bb1433">1.3. Template for HDF5 init/deinit</a></li>
+<li><a href="#org93b4a8b">1.4. Template for HDF5 has/read/write the numerical attribute</a></li>
+<li><a href="#orgf2bf93f">1.5. Template for HDF5 has/read/write the dataset of numerical data</a></li>
+<li><a href="#org356b635">1.6. Template for HDF5 has/read/write the dataset of sparse data</a></li>
+<li><a href="#org8e757db">1.7. Template for HDF5 has/read/write the dataset of strings</a></li>
+<li><a href="#org2234f89">1.8. Template for HDF5 has/read/write the string attribute</a></li>
+<li><a href="#orgdac312f">1.9. Helper functions</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org54ed73b" class="outline-2">
-<h2 id="org54ed73b"><span class="section-number-2">1</span> HDF5 back end</h2>
+<div id="outline-container-orgd21a92e" class="outline-2">
+<h2 id="orgd21a92e"><span class="section-number-2">1</span> HDF5 back end</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-org2d21d94" class="outline-3">
-<h3 id="org2d21d94"><span class="section-number-3">1.1</span> Template for HDF5 definitions</h3>
+<div id="outline-container-org7bbeabf" class="outline-3">
+<h3 id="org7bbeabf"><span class="section-number-3">1.1</span> Template for HDF5 definitions</h3>
 <div class="outline-text-3" id="text-1-1">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #483d8b;">#define</span> $GROUP$_GROUP_NAME          <span style="color: #8b2252;">"$group$"</span>
@@ -345,8 +345,8 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org5652f0f" class="outline-3">
-<h3 id="org5652f0f"><span class="section-number-3">1.2</span> Template for HDF5 structures</h3>
+<div id="outline-container-org7aa4760" class="outline-3">
+<h3 id="org7aa4760"><span class="section-number-3">1.2</span> Template for HDF5 structures</h3>
 <div class="outline-text-3" id="text-1-2">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #a020f0;">typedef</span> <span style="color: #a020f0;">struct</span> <span style="color: #228b22;">trexio_hdf5_s</span> {
@@ -360,8 +360,8 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-org50e6566" class="outline-3">
-<h3 id="org50e6566"><span class="section-number-3">1.3</span> Template for HDF5 init/deinit</h3>
+<div id="outline-container-org4bb1433" class="outline-3">
+<h3 id="org4bb1433"><span class="section-number-3">1.3</span> Template for HDF5 init/deinit</h3>
 <div class="outline-text-3" id="text-1-3">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -441,8 +441,8 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-orgdd6847e" class="outline-3">
-<h3 id="orgdd6847e"><span class="section-number-3">1.4</span> Template for HDF5 has/read/write the numerical attribute</h3>
+<div id="outline-container-org93b4a8b" class="outline-3">
+<h3 id="org93b4a8b"><span class="section-number-3">1.4</span> Template for HDF5 has/read/write the numerical attribute</h3>
 <div class="outline-text-3" id="text-1-4">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -536,8 +536,8 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-orgffdb42b" class="outline-3">
-<h3 id="orgffdb42b"><span class="section-number-3">1.5</span> Template for HDF5 has/read/write the dataset of numerical data</h3>
+<div id="outline-container-orgf2bf93f" class="outline-3">
+<h3 id="orgf2bf93f"><span class="section-number-3">1.5</span> Template for HDF5 has/read/write the dataset of numerical data</h3>
 <div class="outline-text-3" id="text-1-5">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -659,8 +659,8 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-orgf2d335e" class="outline-3">
-<h3 id="orgf2d335e"><span class="section-number-3">1.6</span> Template for HDF5 has/read/write the dataset of sparse data</h3>
+<div id="outline-container-org356b635" class="outline-3">
+<h3 id="org356b635"><span class="section-number-3">1.6</span> Template for HDF5 has/read/write the dataset of sparse data</h3>
 <div class="outline-text-3" id="text-1-6">
 <p>
 Sparse data is stored using extensible datasets of HDF5. Extensibility is required
@@ -861,8 +861,8 @@ due to the fact that the sparse data will be written in chunks of user-defined s
 </div>
 </div>
 
-<div id="outline-container-org82b1cb1" class="outline-3">
-<h3 id="org82b1cb1"><span class="section-number-3">1.7</span> Template for HDF5 has/read/write the dataset of strings</h3>
+<div id="outline-container-org8e757db" class="outline-3">
+<h3 id="org8e757db"><span class="section-number-3">1.7</span> Template for HDF5 has/read/write the dataset of strings</h3>
 <div class="outline-text-3" id="text-1-7">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -1066,8 +1066,8 @@ due to the fact that the sparse data will be written in chunks of user-defined s
 </div>
 </div>
 
-<div id="outline-container-org9fa9b36" class="outline-3">
-<h3 id="org9fa9b36"><span class="section-number-3">1.8</span> Template for HDF5 has/read/write the string attribute</h3>
+<div id="outline-container-org2234f89" class="outline-3">
+<h3 id="org2234f89"><span class="section-number-3">1.8</span> Template for HDF5 has/read/write the string attribute</h3>
 <div class="outline-text-3" id="text-1-8">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -1189,8 +1189,8 @@ due to the fact that the sparse data will be written in chunks of user-defined s
 </div>
 </div>
 </div>
-<div id="outline-container-org89be838" class="outline-3">
-<h3 id="org89be838"><span class="section-number-3">1.9</span> Helper functions</h3>
+<div id="outline-container-orgdac312f" class="outline-3">
+<h3 id="orgdac312f"><span class="section-number-3">1.9</span> Helper functions</h3>
 <div class="outline-text-3" id="text-1-9">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -1452,7 +1452,7 @@ due to the fact that the sparse data will be written in chunks of user-defined s
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: TREX-CoE</p>
-<p class="date">Created: 2022-01-07 Fri 15:10</p>
+<p class="date">Created: 2022-01-07 Fri 15:31</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
