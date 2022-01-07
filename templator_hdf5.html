@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2021-07-23 Fri 14:27 -->
+<!-- 2022-01-07 Fri 10:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>HDF5 back end</title>
@@ -311,27 +311,29 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgdf74e93">1. HDF5 back end</a>
+<li><a href="#org90bc6a8">1. HDF5 back end</a>
 <ul>
-<li><a href="#org9161313">1.1. Template for HDF5 definitions</a></li>
-<li><a href="#orgae30956">1.2. Template for HDF5 structures</a></li>
-<li><a href="#org93a9b72">1.3. Template for HDF5 init/deinit</a></li>
-<li><a href="#org92027d5">1.4. Template for HDF5 has/read/write a single dimensioning variable</a></li>
-<li><a href="#org44832ef">1.5. Template for HDF5 has/read/write a dataset of numerical data</a></li>
-<li><a href="#org7d2e0c3">1.6. Template for HDF5 has/read/write a dataset of strings</a></li>
-<li><a href="#orgf66ac5d">1.7. Template for HDF5 has/read/write a single string attribute</a></li>
+<li><a href="#orgb2cf2f8">1.1. Template for HDF5 definitions</a></li>
+<li><a href="#org76b945a">1.2. Template for HDF5 structures</a></li>
+<li><a href="#orgd233ba4">1.3. Template for HDF5 init/deinit</a></li>
+<li><a href="#org68367ce">1.4. Template for HDF5 has/read/write the numerical attribute</a></li>
+<li><a href="#org0a2ac93">1.5. Template for HDF5 has/read/write the dataset of numerical data</a></li>
+<li><a href="#orgd51276b">1.6. Template for HDF5 has/read/write the dataset of sparse data</a></li>
+<li><a href="#org6b1dca3">1.7. Template for HDF5 has/read/write the dataset of strings</a></li>
+<li><a href="#org5ff2d29">1.8. Template for HDF5 has/read/write the string attribute</a></li>
+<li><a href="#org169ed63">1.9. Helper functions</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgdf74e93" class="outline-2">
-<h2 id="orgdf74e93"><span class="section-number-2">1</span> HDF5 back end</h2>
+<div id="outline-container-org90bc6a8" class="outline-2">
+<h2 id="org90bc6a8"><span class="section-number-2">1</span> HDF5 back end</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-org9161313" class="outline-3">
-<h3 id="org9161313"><span class="section-number-3">1.1</span> Template for HDF5 definitions</h3>
+<div id="outline-container-orgb2cf2f8" class="outline-3">
+<h3 id="orgb2cf2f8"><span class="section-number-3">1.1</span> Template for HDF5 definitions</h3>
 <div class="outline-text-3" id="text-1-1">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #483d8b;">#define</span> $GROUP$_GROUP_NAME          <span style="color: #8b2252;">"$group$"</span>
@@ -343,15 +345,14 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-orgae30956" class="outline-3">
-<h3 id="orgae30956"><span class="section-number-3">1.2</span> Template for HDF5 structures</h3>
+<div id="outline-container-org76b945a" class="outline-3">
+<h3 id="org76b945a"><span class="section-number-3">1.2</span> Template for HDF5 structures</h3>
 <div class="outline-text-3" id="text-1-2">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #a020f0;">typedef</span> <span style="color: #a020f0;">struct</span> <span style="color: #228b22;">trexio_hdf5_s</span> {
   <span style="color: #228b22;">trexio_t</span>     <span style="color: #a0522d;">parent</span> ;
-  <span style="color: #228b22;">hid_t</span>      <span style="color: #a0522d;">file_id</span>;
-  hid_t      $group$_group;
-  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">char</span>* <span style="color: #a0522d;">file_name</span>;
+  <span style="color: #228b22;">hid_t</span>        <span style="color: #a0522d;">file_id</span>;
+  hid_t        $group$_group;
 } <span style="color: #228b22;">trexio_hdf5_t</span>;
 </pre>
 </div>
@@ -359,8 +360,8 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-org93a9b72" class="outline-3">
-<h3 id="org93a9b72"><span class="section-number-3">1.3</span> Template for HDF5 init/deinit</h3>
+<div id="outline-container-orgd233ba4" class="outline-3">
+<h3 id="orgd233ba4"><span class="section-number-3">1.3</span> Template for HDF5 init/deinit</h3>
 <div class="outline-text-3" id="text-1-3">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -440,12 +441,12 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org92027d5" class="outline-3">
-<h3 id="org92027d5"><span class="section-number-3">1.4</span> Template for HDF5 has/read/write a single dimensioning variable</h3>
+<div id="outline-container-org68367ce" class="outline-3">
+<h3 id="org68367ce"><span class="section-number-3">1.4</span> Template for HDF5 has/read/write the numerical attribute</h3>
 <div class="outline-text-3" id="text-1-4">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
-<span style="color: #0000ff;">trexio_hdf5_read_$group_num$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>, <span style="color: #228b22;">uint64_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">num</span>)
+<span style="color: #0000ff;">trexio_hdf5_read_$group_num$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>, $group_num_dtype_double$* <span style="color: #a020f0;">const</span> num)
 {
 
   <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
@@ -459,7 +460,7 @@ for the JavaScript code in this tag.
   <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">num_id</span> = H5Aopen(f-&gt;$group$_group, $GROUP_NUM$_NAME, H5P_DEFAULT);
   <span style="color: #a020f0;">if</span> (num_id &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
 
-  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5Aread(num_id, H5T_NATIVE_UINT64, num);
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5Aread(num_id, H5T_$GROUP_NUM_H5_DTYPE$, num);
 
   H5Aclose(num_id);
 
@@ -474,60 +475,38 @@ for the JavaScript code in this tag.
 
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
-<span style="color: #0000ff;">trexio_hdf5_write_$group_num$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>, <span style="color: #a020f0;">const</span> <span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">num</span>)
+<span style="color: #0000ff;">trexio_hdf5_write_$group_num$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>, <span style="color: #a020f0;">const</span> $group_num_dtype_double$ num)
 {
 
   <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
-  <span style="color: #a020f0;">if</span> (num  == 0L  ) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_2;
 
   <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">f</span> = (<span style="color: #228b22;">trexio_hdf5_t</span>*) file;
 
-  <span style="color: #a020f0;">if</span> (H5Aexists(f-&gt;$group$_group, $GROUP_NUM$_NAME) == 0) {
+  /* <span style="color: #b22222;">Write the dimensioning variables </span>*/
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dtype</span> = H5Tcopy(H5T_$GROUP_NUM_H5_DTYPE$);
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace</span> = H5Screate(H5S_SCALAR);
 
-    /* <span style="color: #b22222;">Write the dimensioning variables </span>*/
-    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dtype</span> = H5Tcopy(H5T_NATIVE_UINT64);
-    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace</span> = H5Screate(H5S_SCALAR);
-
-    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">num_id</span> = H5Acreate(f-&gt;$group$_group, $GROUP_NUM$_NAME, dtype, dspace,
-                     H5P_DEFAULT, H5P_DEFAULT);
-    <span style="color: #a020f0;">if</span> (num_id &lt;= 0) {
-      H5Sclose(dspace);
-      H5Tclose(dtype);
-      <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
-    }
-
-    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5Awrite(num_id, dtype, &amp;(num));
-    <span style="color: #a020f0;">if</span> (status &lt; 0) {
-      H5Aclose(num_id);
-      H5Sclose(dspace);
-      H5Tclose(dtype);
-      <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
-    }
-
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">num_id</span> = H5Acreate(f-&gt;$group$_group, $GROUP_NUM$_NAME,
+                                 dtype, dspace, H5P_DEFAULT, H5P_DEFAULT);
+  <span style="color: #a020f0;">if</span> (num_id &lt;= 0) {
     H5Sclose(dspace);
-    H5Aclose(num_id);
     H5Tclose(dtype);
-    <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
-
-  } <span style="color: #a020f0;">else</span> {
-
-    <span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">infile_num</span>;
-    <span style="color: #228b22;">trexio_exit_code</span> <span style="color: #a0522d;">rc</span> = trexio_hdf5_read_$group_num$(file, &amp;(infile_num));
-    <span style="color: #a020f0;">if</span> (rc != TREXIO_SUCCESS) <span style="color: #a020f0;">return</span> rc;
-
-    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dtype</span> = H5Tcopy(H5T_NATIVE_UINT64);
-    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">num_id</span> = H5Aopen(f-&gt;$group$_group, $GROUP_NUM$_NAME, H5P_DEFAULT);
-    <span style="color: #a020f0;">if</span> (num_id &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
-
-    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5Awrite(num_id, dtype, &amp;(num));
-    <span style="color: #a020f0;">if</span> (status &lt; 0) <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
-
-    H5Aclose(num_id);
-    H5Tclose(dtype);
-
-    <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
   }
 
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5Awrite(num_id, dtype, &amp;(num));
+  <span style="color: #a020f0;">if</span> (status &lt; 0) {
+    H5Aclose(num_id);
+    H5Sclose(dspace);
+    H5Tclose(dtype);
+    <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
+  }
+
+  H5Sclose(dspace);
+  H5Aclose(num_id);
+  H5Tclose(dtype);
+
+  <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
 }
 </pre>
 </div>
@@ -557,8 +536,8 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org44832ef" class="outline-3">
-<h3 id="org44832ef"><span class="section-number-3">1.5</span> Template for HDF5 has/read/write a dataset of numerical data</h3>
+<div id="outline-container-org0a2ac93" class="outline-3">
+<h3 id="org0a2ac93"><span class="section-number-3">1.5</span> Template for HDF5 has/read/write the dataset of numerical data</h3>
 <div class="outline-text-3" id="text-1-5">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
@@ -566,7 +545,7 @@ for the JavaScript code in this tag.
 {
 
   <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
-  <span style="color: #a020f0;">if</span> ($group_dset$  == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_2;
+  <span style="color: #a020f0;">if</span> ($group_dset$ == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_2;
 
   <span style="color: #a020f0;">const</span> <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a0522d;">f</span> = (<span style="color: #a020f0;">const</span> <span style="color: #228b22;">trexio_hdf5_t</span>*) file;
 
@@ -582,7 +561,6 @@ for the JavaScript code in this tag.
   <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace_id</span> = H5Dget_space(dset_id);
   // <span style="color: #b22222;">get the rank and dimensions of the dataset</span>
   <span style="color: #228b22;">int</span> <span style="color: #a0522d;">rrank</span> = H5Sget_simple_extent_dims(dspace_id, ddims, <span style="color: #008b8b;">NULL</span>);
-
   // <span style="color: #b22222;">check that dimensions are consistent</span>
   <span style="color: #a020f0;">if</span> (rrank != (<span style="color: #228b22;">int</span>) rank) {
     FREE(ddims);
@@ -622,13 +600,7 @@ for the JavaScript code in this tag.
 {
 
   <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
-  <span style="color: #a020f0;">if</span> ($group_dset$  == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_2;
-
-  <span style="color: #228b22;">trexio_exit_code</span> <span style="color: #a0522d;">rc</span>;
-  uint64_t $group_dset_dim$;
-  // <span style="color: #b22222;">error handling for rc is added by the generator</span>
-  rc = trexio_hdf5_read_$group_dset_dim$(file, &amp;($group_dset_dim$));
-  <span style="color: #a020f0;">if</span> ($group_dset_dim$ == 0L) <span style="color: #a020f0;">return</span> TREXIO_INVALID_NUM;
+  <span style="color: #a020f0;">if</span> ($group_dset$ == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_2;
 
   <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a0522d;">f</span> = (<span style="color: #228b22;">trexio_hdf5_t</span>*) file;
 
@@ -687,9 +659,211 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org7d2e0c3" class="outline-3">
-<h3 id="org7d2e0c3"><span class="section-number-3">1.6</span> Template for HDF5 has/read/write a dataset of strings</h3>
+<div id="outline-container-orgd51276b" class="outline-3">
+<h3 id="orgd51276b"><span class="section-number-3">1.6</span> Template for HDF5 has/read/write the dataset of sparse data</h3>
 <div class="outline-text-3" id="text-1-6">
+<p>
+Sparse data is stored using extensible datasets of HDF5. Extensibility is required
+due to the fact that the sparse data will be written in chunks of user-defined size.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
+<span style="color: #0000ff;">trexio_hdf5_write_$group_dset$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>,
+                                <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int64_t</span> <span style="color: #a0522d;">offset_file</span>,
+                                <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int64_t</span> <span style="color: #a0522d;">size</span>,
+                                <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int64_t</span> <span style="color: #a0522d;">size_max</span>,
+                                <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int32_t</span>* <span style="color: #a0522d;">index_sparse</span>,
+                                <span style="color: #a020f0;">const</span> <span style="color: #228b22;">double</span>* <span style="color: #a0522d;">value_sparse</span>)
+{
+
+  <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
+
+  <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a0522d;">f</span> = (<span style="color: #228b22;">trexio_hdf5_t</span>*) file;
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">index_dtype</span>;
+  <span style="color: #228b22;">void</span>* <span style="color: #a0522d;">index_p</span> = <span style="color: #008b8b;">NULL</span>;
+  <span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">size_ranked</span> = (<span style="color: #228b22;">uint64_t</span>) size * $group_dset_rank$;
+  /* <span style="color: #b22222;">Determine the optimal type for storing indices depending on the size_max (usually mo_num or ao_num) </span>*/
+  <span style="color: #a020f0;">if</span> (size_max &lt; UINT8_MAX) {
+    <span style="color: #228b22;">uint8_t</span>* <span style="color: #a0522d;">index</span> = CALLOC(size_ranked, uint8_t);
+    <span style="color: #a020f0;">if</span> (index == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_ALLOCATION_FAILED;
+    <span style="color: #a020f0;">for</span> (<span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">i</span>=0; i&lt;size_ranked; ++i){
+      index[i] = (<span style="color: #228b22;">uint8_t</span>) index_sparse[i];
+    }
+    index_p = index;
+    index_dtype = H5T_NATIVE_UINT8;
+  } <span style="color: #a020f0;">else</span> <span style="color: #a020f0;">if</span> (size_max &lt; UINT16_MAX) {
+    <span style="color: #228b22;">uint16_t</span>* <span style="color: #a0522d;">index</span> = CALLOC(size_ranked, uint16_t);
+    <span style="color: #a020f0;">if</span> (index == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_ALLOCATION_FAILED;
+    <span style="color: #a020f0;">for</span> (<span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">i</span>=0; i&lt;size_ranked; ++i){
+      index[i] = (<span style="color: #228b22;">uint16_t</span>) index_sparse[i];
+    }
+    index_p = index;
+    index_dtype = H5T_NATIVE_UINT16;
+  } <span style="color: #a020f0;">else</span> {
+    index_p = (<span style="color: #228b22;">int32_t</span>*) index_sparse;
+    index_dtype = H5T_NATIVE_INT32;
+  }
+
+  /* <span style="color: #b22222;">Store float values in double precision </span>*/
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">value_dtype</span> = H5T_NATIVE_DOUBLE;
+  /* <span style="color: #b22222;">Arrays of chunk dims that will be used for chunking the dataset </span>*/
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">chunk_i_dims</span>[1] = {size_ranked};
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">chunk_v_dims</span>[1] = {size};
+
+  /* <span style="color: #b22222;">Indices and values are stored as 2 independent datasets in the HDF5 file </span>*/
+  <span style="color: #228b22;">char</span> <span style="color: #a0522d;">dset_index_name</span>[256];
+  <span style="color: #228b22;">char</span> <span style="color: #a0522d;">dset_value_name</span>[256];
+  /* <span style="color: #b22222;">Build the names of the datasets </span>*/
+  strncpy(dset_index_name, $GROUP_DSET$_NAME <span style="color: #8b2252;">"_indices"</span>, 256);
+  strncpy(dset_value_name, $GROUP_DSET$_NAME <span style="color: #8b2252;">"_values"</span>, 256);
+
+  <span style="color: #228b22;">trexio_exit_code</span> <span style="color: #a0522d;">rc_write</span> = TREXIO_FAILURE;
+  /* <span style="color: #b22222;">NOTE: chunk size is set upon creation of the HDF5 dataset and cannot be changed ! </span>*/
+  <span style="color: #a020f0;">if</span> ( H5LTfind_dataset(f-&gt;$group$_group, dset_index_name) != 1 ) {
+  /* <span style="color: #b22222;">If the file does not exist -&gt; create it and write </span>*/
+
+  /* <span style="color: #b22222;">Create chunked dataset with index_dtype datatype and write indices into it </span>*/
+    rc_write = trexio_hdf5_create_write_dset_sparse(f-&gt;$group$_group, dset_index_name, index_dtype, chunk_i_dims, index_p);
+    <span style="color: #a020f0;">if</span> (index_p != index_sparse) FREE(index_p);
+    <span style="color: #a020f0;">if</span> (rc_write != TREXIO_SUCCESS) <span style="color: #a020f0;">return</span> rc_write;
+
+  /* <span style="color: #b22222;">Create chunked dataset with value_dtype datatype and write values into it </span>*/
+    rc_write = trexio_hdf5_create_write_dset_sparse(f-&gt;$group$_group, dset_value_name, value_dtype, chunk_v_dims, value_sparse);
+    <span style="color: #a020f0;">if</span> (rc_write != TREXIO_SUCCESS) <span style="color: #a020f0;">return</span> rc_write;
+
+  } <span style="color: #a020f0;">else</span> {
+  /* <span style="color: #b22222;">If the file exists -&gt; open it and write </span>*/
+    <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">offset_i</span>[1] = {(<span style="color: #228b22;">hsize_t</span>) offset_file * $group_dset_rank$};
+    <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">offset_v</span>[1] = {(<span style="color: #228b22;">hsize_t</span>) offset_file};
+
+  /* <span style="color: #b22222;">Create chunked dataset with index_dtype datatype and write indices into it </span>*/
+    rc_write = trexio_hdf5_open_write_dset_sparse(f-&gt;$group$_group, dset_index_name, index_dtype, chunk_i_dims, offset_i, index_p);
+    <span style="color: #a020f0;">if</span> (index_p != index_sparse) FREE(index_p);
+    <span style="color: #a020f0;">if</span> (rc_write != TREXIO_SUCCESS) <span style="color: #a020f0;">return</span> rc_write;
+
+  /* <span style="color: #b22222;">Create chunked dataset with value_dtype datatype and write values into it </span>*/
+    rc_write = trexio_hdf5_open_write_dset_sparse(f-&gt;$group$_group, dset_value_name, value_dtype, chunk_v_dims, offset_v, value_sparse);
+    <span style="color: #a020f0;">if</span> (rc_write != TREXIO_SUCCESS) <span style="color: #a020f0;">return</span> rc_write;
+
+  }
+
+  <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
+}
+</pre>
+</div>
+
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
+<span style="color: #0000ff;">trexio_hdf5_read_$group_dset$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>,
+                               <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int64_t</span> <span style="color: #a0522d;">offset_file</span>,
+                               <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int64_t</span> <span style="color: #a0522d;">size</span>,
+                               <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int64_t</span> <span style="color: #a0522d;">size_max</span>,
+                               <span style="color: #228b22;">int64_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">eof_read_size</span>,
+                               <span style="color: #228b22;">int32_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">index_read</span>,
+                               <span style="color: #228b22;">double</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">value_read</span>)
+{
+
+  <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
+  <span style="color: #a020f0;">if</span> (eof_read_size == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_5;
+
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a0522d;">f</span> = (<span style="color: #a020f0;">const</span> <span style="color: #228b22;">trexio_hdf5_t</span>*) file;
+
+  /* <span style="color: #b22222;">Indices and values are stored as 2 independent datasets in the HDF5 file </span>*/
+  <span style="color: #228b22;">char</span> <span style="color: #a0522d;">dset_index_name</span>[256];
+  <span style="color: #228b22;">char</span> <span style="color: #a0522d;">dset_value_name</span>[256];
+  /* <span style="color: #b22222;">Build the names of the datasets </span>*/
+  strncpy(dset_index_name, $GROUP_DSET$_NAME <span style="color: #8b2252;">"_indices"</span>, 256);
+  strncpy(dset_value_name, $GROUP_DSET$_NAME <span style="color: #8b2252;">"_values"</span>, 256);
+
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">offset_i</span>[1] = {(<span style="color: #228b22;">hsize_t</span>) offset_file * $group_dset_rank$};
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">count_i</span>[1] = {(<span style="color: #228b22;">hsize_t</span>) size * $group_dset_rank$};
+
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">offset_v</span>[1] = {(<span style="color: #228b22;">hsize_t</span>) offset_file};
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">count_v</span>[1] = {(<span style="color: #228b22;">hsize_t</span>) size};
+
+  <span style="color: #228b22;">int</span> <span style="color: #a0522d;">is_index</span> = 1, <span style="color: #a0522d;">is_value</span> = 0;
+  <span style="color: #228b22;">trexio_exit_code</span> <span style="color: #a0522d;">rc_read</span>;
+
+  // <span style="color: #b22222;">attempt to read indices</span>
+  rc_read = trexio_hdf5_open_read_dset_sparse(f-&gt;$group$_group, dset_index_name, offset_i, count_i, <span style="color: #008b8b;">NULL</span>, is_index, index_read);
+  <span style="color: #a020f0;">if</span> (rc_read != TREXIO_SUCCESS &amp;&amp; rc_read != TREXIO_END) <span style="color: #a020f0;">return</span> rc_read;
+  // <span style="color: #b22222;">attempt to read values</span>
+  // <span style="color: #b22222;">when EOF is encountered - the count_v[0] is modified and contains the number of elements being read</span>
+  rc_read = trexio_hdf5_open_read_dset_sparse(f-&gt;$group$_group, dset_value_name, offset_v, count_v, eof_read_size, is_value, value_read);
+  <span style="color: #a020f0;">if</span> (rc_read != TREXIO_SUCCESS &amp;&amp; rc_read != TREXIO_END) <span style="color: #a020f0;">return</span> rc_read;
+
+  <span style="color: #a020f0;">return</span> rc_read;
+}
+</pre>
+</div>
+
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
+<span style="color: #0000ff;">trexio_hdf5_read_$group_dset$_size</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>, <span style="color: #228b22;">int64_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">size_max</span>)
+{
+
+  <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
+
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a0522d;">f</span> = (<span style="color: #a020f0;">const</span> <span style="color: #228b22;">trexio_hdf5_t</span>*) file;
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dset_id</span> = H5Dopen(f-&gt;$group$_group, $GROUP_DSET$_NAME <span style="color: #8b2252;">"_values"</span>, H5P_DEFAULT);
+  <span style="color: #a020f0;">if</span> (dset_id &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">fspace_id</span> = H5Dget_space(dset_id);
+  <span style="color: #a020f0;">if</span> (fspace_id &lt; 0) {
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  // <span style="color: #b22222;">allocate space for the dimensions to be read</span>
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">ddims</span>[1] = {0};
+
+  // <span style="color: #b22222;">get the rank and dimensions of the dataset</span>
+  H5Sget_simple_extent_dims(fspace_id, ddims, <span style="color: #008b8b;">NULL</span>);
+
+  H5Dclose(dset_id);
+  H5Sclose(fspace_id);
+
+  *size_max = (<span style="color: #228b22;">int64_t</span>) ddims[0];
+
+  <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
+}
+</pre>
+</div>
+
+
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
+<span style="color: #0000ff;">trexio_hdf5_has_$group_dset$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>)
+{
+
+  <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
+
+  <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a0522d;">f</span> = (<span style="color: #228b22;">trexio_hdf5_t</span>*) file;
+
+  <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5LTfind_dataset(f-&gt;$group$_group, $GROUP_DSET$_NAME <span style="color: #8b2252;">"_values"</span>);
+  /* <span style="color: #b22222;">H5LTfind_dataset returns 1 if dataset exists, 0 otherwise </span>*/
+  <span style="color: #a020f0;">if</span> (status == 1){
+    <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
+  } <span style="color: #a020f0;">else</span> <span style="color: #a020f0;">if</span> (status == 0) {
+    <span style="color: #a020f0;">return</span> TREXIO_HAS_NOT;
+  } <span style="color: #a020f0;">else</span> {
+    <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
+  }
+
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6b1dca3" class="outline-3">
+<h3 id="org6b1dca3"><span class="section-number-3">1.7</span> Template for HDF5 has/read/write the dataset of strings</h3>
+<div class="outline-text-3" id="text-1-7">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
 <span style="color: #0000ff;">trexio_hdf5_read_$group_dset$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>, <span style="color: #228b22;">char</span>* <span style="color: #a020f0;">const</span> $group_dset$, <span style="color: #a020f0;">const</span> <span style="color: #228b22;">uint32_t</span> <span style="color: #a0522d;">rank</span>, <span style="color: #a020f0;">const</span> <span style="color: #228b22;">uint64_t</span>* <span style="color: #a0522d;">dims</span>, <span style="color: #a020f0;">const</span> <span style="color: #228b22;">uint32_t</span> <span style="color: #a0522d;">max_str_len</span>)
@@ -713,16 +887,15 @@ for the JavaScript code in this tag.
     <span style="color: #a020f0;">return</span> TREXIO_ALLOCATION_FAILED;
   }
 
-  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace</span> = H5Dget_space(dset_id); 
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace</span> = H5Dget_space(dset_id);
   <span style="color: #a020f0;">if</span> (dset_id &lt;= 0) {
     FREE(ddims);
-    H5Dclose(dset_id); 
+    H5Dclose(dset_id);
     <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
   }
 
   // <span style="color: #b22222;">get the rank of the dataset in a file</span>
   <span style="color: #228b22;">int</span> <span style="color: #a0522d;">rrank</span> = H5Sget_simple_extent_dims(dspace, ddims, <span style="color: #008b8b;">NULL</span>);
-
   <span style="color: #a020f0;">if</span> (rrank != (<span style="color: #228b22;">int</span>) rank) {
     FREE(ddims);
     H5Dclose(dset_id);
@@ -752,7 +925,7 @@ for the JavaScript code in this tag.
   <span style="color: #a020f0;">if</span> (rdata == <span style="color: #008b8b;">NULL</span>) {
     H5Dclose(dset_id);
     H5Sclose(dspace);
-    H5Tclose(memtype); 
+    H5Tclose(memtype);
     <span style="color: #a020f0;">return</span> TREXIO_ALLOCATION_FAILED;
   }
 
@@ -761,7 +934,7 @@ for the JavaScript code in this tag.
     FREE(rdata);
     H5Dclose(dset_id);
     H5Sclose(dspace);
-    H5Tclose(memtype); 
+    H5Tclose(memtype);
     <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
   }
 
@@ -784,11 +957,11 @@ for the JavaScript code in this tag.
     FREE(rdata);
     H5Dclose(dset_id);
     H5Sclose(dspace);
-    H5Tclose(memtype); 
+    H5Tclose(memtype);
     <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
   }
 
-  FREE(rdata); 
+  FREE(rdata);
   H5Dclose(dset_id);
   H5Sclose(dspace);
   H5Tclose(memtype);
@@ -806,12 +979,6 @@ for the JavaScript code in this tag.
   <span style="color: #a020f0;">if</span> (file == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_1;
   <span style="color: #a020f0;">if</span> ($group_dset$  == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ARG_2;
 
-  <span style="color: #228b22;">trexio_exit_code</span> <span style="color: #a0522d;">rc</span>;
-  uint64_t $group_dset_dim$;
-  // <span style="color: #b22222;">error handling for rc is added by the generator</span>
-  rc = trexio_hdf5_read_$group_dset_dim$(file, &amp;($group_dset_dim$));
-  <span style="color: #a020f0;">if</span> ($group_dset_dim$ == 0L) <span style="color: #a020f0;">return</span> TREXIO_INVALID_NUM;
-
   <span style="color: #228b22;">trexio_hdf5_t</span>* <span style="color: #a0522d;">f</span> = (<span style="color: #228b22;">trexio_hdf5_t</span>*) file;
 
   <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span>;
@@ -819,15 +986,22 @@ for the JavaScript code in this tag.
 
   /* <span style="color: #b22222;">we are going to write variable-length strings </span>*/
   <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">memtype</span> = H5Tcopy (H5T_C_S1);
+  <span style="color: #a020f0;">if</span> (memtype &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+
   status = H5Tset_size (memtype, H5T_VARIABLE);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
 
   <span style="color: #a020f0;">if</span> ( H5LTfind_dataset(f-&gt;$group$_group, $GROUP_DSET$_NAME) != 1 ) {
 
-    /* <span style="color: #b22222;">code to create dataset </span>*/   
+    /* <span style="color: #b22222;">code to create dataset </span>*/
     <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">filetype</span> = H5Tcopy (H5T_FORTRAN_S1);
+    <span style="color: #a020f0;">if</span> (filetype &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+
     status = H5Tset_size (filetype, H5T_VARIABLE);
+    <span style="color: #a020f0;">if</span> (status &lt; 0) <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
 
     <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace</span> = H5Screate_simple( (<span style="color: #228b22;">int</span>) rank, (<span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span>*) dims, <span style="color: #008b8b;">NULL</span>);
+    <span style="color: #a020f0;">if</span> (dspace &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
 
     dset_id = H5Dcreate (f-&gt;$group$_group, $GROUP_DSET$_NAME, filetype, dspace,
                          H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -892,9 +1066,9 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-orgf66ac5d" class="outline-3">
-<h3 id="orgf66ac5d"><span class="section-number-3">1.7</span> Template for HDF5 has/read/write a single string attribute</h3>
-<div class="outline-text-3" id="text-1-7">
+<div id="outline-container-org5ff2d29" class="outline-3">
+<h3 id="org5ff2d29"><span class="section-number-3">1.8</span> Template for HDF5 has/read/write the string attribute</h3>
+<div class="outline-text-3" id="text-1-8">
 <div class="org-src-container">
 <pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
 <span style="color: #0000ff;">trexio_hdf5_read_$group_str$</span> (<span style="color: #228b22;">trexio_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">file</span>, <span style="color: #228b22;">char</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">str</span>, <span style="color: #a020f0;">const</span> <span style="color: #228b22;">uint32_t</span> <span style="color: #a0522d;">max_str_len</span>)
@@ -914,7 +1088,6 @@ for the JavaScript code in this tag.
   <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">ftype_id</span> = H5Aget_type(str_id);
   <span style="color: #a020f0;">if</span> (ftype_id &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
   <span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">sdim</span> = H5Tget_size(ftype_id);
-  <span style="color: #a020f0;">if</span> (sdim &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
   sdim++;                         /* <span style="color: #b22222;">Make room for null terminator </span>*/
 
   <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">mem_id</span> = H5Tcopy(H5T_C_S1);
@@ -1016,11 +1189,270 @@ for the JavaScript code in this tag.
 </div>
 </div>
 </div>
+<div id="outline-container-org169ed63" class="outline-3">
+<h3 id="org169ed63"><span class="section-number-3">1.9</span> Helper functions</h3>
+<div class="outline-text-3" id="text-1-9">
+<div class="org-src-container">
+<pre class="src src-c"><span style="color: #228b22;">trexio_exit_code</span>
+<span style="color: #0000ff;">trexio_hdf5_create_write_dset_sparse</span> (<span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">group_id</span>,
+                                      <span style="color: #a020f0;">const</span> <span style="color: #228b22;">char</span>* <span style="color: #a0522d;">dset_name</span>,
+                                      <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dtype_id</span>,
+                                      <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span>* <span style="color: #a0522d;">chunk_dims</span>,
+                                      <span style="color: #a020f0;">const</span> <span style="color: #228b22;">void</span>* <span style="color: #a0522d;">data_sparse</span>)
+{
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int</span> <span style="color: #a0522d;">h5_rank</span> = 1;
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">maxdims</span>[1] = {H5S_UNLIMITED};
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace</span> = H5Screate_simple(h5_rank, chunk_dims, maxdims);
+  <span style="color: #a020f0;">if</span> (dspace &lt; 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">prop</span> = H5Pcreate(H5P_DATASET_CREATE);
+  <span style="color: #a020f0;">if</span> (prop &lt; 0) {
+    H5Sclose(dspace);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5Pset_chunk(prop, h5_rank, chunk_dims);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) {
+    H5Sclose(dspace);
+    H5Pclose(prop);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dset_id</span> = H5Dcreate(group_id,
+                            dset_name,
+                            dtype_id,
+                            dspace,
+                            H5P_DEFAULT,
+                            prop,
+                            H5P_DEFAULT);
+  <span style="color: #a020f0;">if</span> (dset_id &lt; 0) {
+    H5Sclose(dspace);
+    H5Pclose(prop);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  status = H5Dwrite(dset_id,
+                    dtype_id,
+                    H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                    data_sparse);
+  H5Sclose(dspace);
+  H5Pclose(prop);
+  H5Dclose(dset_id);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
+
+  <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
+}
+
+
+<span style="color: #228b22;">trexio_exit_code</span>
+<span style="color: #0000ff;">trexio_hdf5_open_write_dset_sparse</span> (<span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">group_id</span>,
+                                    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">char</span>* <span style="color: #a0522d;">dset_name</span>,
+                                    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dtype_id</span>,
+                                    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span>* <span style="color: #a0522d;">chunk_dims</span>,
+                                    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span>* <span style="color: #a0522d;">offset_file</span>,
+                                    <span style="color: #a020f0;">const</span> <span style="color: #228b22;">void</span>* <span style="color: #a0522d;">data_sparse</span>)
+{
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int</span> <span style="color: #a0522d;">h5_rank</span> = 1;
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dset_id</span> = H5Dopen(group_id, dset_name, H5P_DEFAULT);
+  <span style="color: #a020f0;">if</span> (dset_id &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">fspace</span> = H5Dget_space(dset_id);
+  <span style="color: #a020f0;">if</span> (fspace &lt; 0) {
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  // <span style="color: #b22222;">allocate space for the dimensions to be read</span>
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">ddims</span>[1] = {0};
+
+  // <span style="color: #b22222;">get the rank and dimensions of the dataset</span>
+  <span style="color: #228b22;">int</span> <span style="color: #a0522d;">rrank</span> = H5Sget_simple_extent_dims(fspace, ddims, <span style="color: #008b8b;">NULL</span>);
+  <span style="color: #a020f0;">if</span> (rrank != h5_rank) {
+    H5Sclose(fspace);
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
+  }
+
+  ddims[0] += chunk_dims[0];
+
+  // <span style="color: #b22222;">extend the dset size</span>
+  <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span>  = H5Dset_extent(dset_id, ddims);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) {
+    H5Sclose(fspace);
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  // <span style="color: #b22222;">close and reopen the file dataspace to take into account the extension</span>
+  H5Sclose(fspace);
+  fspace = H5Dget_space(dset_id);
+  <span style="color: #a020f0;">if</span> (fspace &lt; 0) {
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  // <span style="color: #b22222;">select hyperslab to be written using chunk_dims and offset values</span>
+  status = H5Sselect_hyperslab(fspace, H5S_SELECT_SET, offset_file, <span style="color: #008b8b;">NULL</span>, chunk_dims, <span style="color: #008b8b;">NULL</span>);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) {
+    H5Sclose(fspace);
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  // <span style="color: #b22222;">create memory dataspace to write from</span>
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dspace</span> = H5Screate_simple(h5_rank, chunk_dims, <span style="color: #008b8b;">NULL</span>);
+  <span style="color: #a020f0;">if</span> (dspace &lt; 0) {
+    H5Sclose(fspace);
+    H5Sclose(dspace);
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  status = H5Dwrite(dset_id,
+                    dtype_id,
+                    dspace, fspace, H5P_DEFAULT,
+                    data_sparse);
+  H5Dclose(dset_id);
+  H5Sclose(dspace);
+  H5Sclose(fspace);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
+
+  <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
+}
+
+
+<span style="color: #228b22;">trexio_exit_code</span>
+<span style="color: #0000ff;">trexio_hdf5_open_read_dset_sparse</span> (<span style="color: #a020f0;">const</span> <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">group_id</span>,
+                                   <span style="color: #a020f0;">const</span> <span style="color: #228b22;">char</span>* <span style="color: #a0522d;">dset_name</span>,
+                                   <span style="color: #a020f0;">const</span> <span style="color: #228b22;">hsize_t</span>* <span style="color: #a0522d;">offset_file</span>,
+                                   <span style="color: #228b22;">hsize_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">size_read</span>,
+                                   <span style="color: #228b22;">int64_t</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">eof_read_size</span>,
+                                   <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int</span> <span style="color: #a0522d;">is_index</span>,
+                                   <span style="color: #228b22;">void</span>* <span style="color: #a020f0;">const</span> <span style="color: #a0522d;">data_sparse</span>
+                                   )
+{
+  <span style="color: #a020f0;">const</span> <span style="color: #228b22;">int</span> <span style="color: #a0522d;">h5_rank</span> = 1;
+
+  // <span style="color: #b22222;">get the dataset handle</span>
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dset_id</span> = H5Dopen(group_id, dset_name, H5P_DEFAULT);
+  <span style="color: #a020f0;">if</span> (dset_id &lt;= 0) <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+
+  // <span style="color: #b22222;">get the dataspace of the dataset</span>
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">fspace_id</span> = H5Dget_space(dset_id);
+  <span style="color: #a020f0;">if</span> (fspace_id &lt; 0) {
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  /* <span style="color: #b22222;">get dims of the dset stored in the file to check whether reading with user-provided chunk size</span>
+<span style="color: #b22222;">     will reach end of the dataset (i.e. EOF in TEXT back end)</span>
+<span style="color: #b22222;">   </span>*/
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">ddims</span>[1] = {0};
+  <span style="color: #228b22;">int</span> <span style="color: #a0522d;">rrank</span> = H5Sget_simple_extent_dims(fspace_id, ddims, <span style="color: #008b8b;">NULL</span>);
+  <span style="color: #a020f0;">if</span> (rrank != h5_rank) {
+    H5Sclose(fspace_id);
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
+  }
+
+  <span style="color: #228b22;">hsize_t</span> <span style="color: #a0522d;">max_offset</span> = offset_file[0] + size_read[0];
+
+  <span style="color: #228b22;">int</span> <span style="color: #a0522d;">is_EOF</span> = 0;
+  // <span style="color: #b22222;">if max_offset exceed current dim of the dset =&gt; EOF</span>
+  <span style="color: #a020f0;">if</span> (max_offset &gt; ddims[0]) {
+    is_EOF = 1;
+    // <span style="color: #b22222;">lower the value of count to reduce the number of elements which will be read</span>
+    size_read[0] -= max_offset - ddims[0];
+    // <span style="color: #b22222;">modified the value of eof_read_size passed by address</span>
+    <span style="color: #a020f0;">if</span> (eof_read_size != <span style="color: #008b8b;">NULL</span>) *eof_read_size = size_read[0];
+  }
+
+  // <span style="color: #b22222;">special case when reading int indices</span>
+  <span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">size_ranked</span> = (<span style="color: #228b22;">uint64_t</span>) size_read[0];
+  <span style="color: #228b22;">void</span>* <span style="color: #a0522d;">index_p</span> = <span style="color: #008b8b;">NULL</span>;
+  // <span style="color: #b22222;">read the datatype from the dataset and compare with the pre-defined values</span>
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">dtype</span> = H5Dget_type(dset_id);
+  <span style="color: #a020f0;">if</span> (is_index == 1) {
+    <span style="color: #a020f0;">if</span> (H5Tequal(dtype, H5T_NATIVE_UINT8) &gt; 0) {
+      <span style="color: #228b22;">uint8_t</span>* <span style="color: #a0522d;">index</span> = CALLOC(size_ranked, uint8_t);
+      <span style="color: #a020f0;">if</span> (index == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_ALLOCATION_FAILED;
+      index_p = index;
+    } <span style="color: #a020f0;">else</span> <span style="color: #a020f0;">if</span> (H5Tequal(dtype, H5T_NATIVE_UINT16) &gt; 0) {
+      <span style="color: #228b22;">uint16_t</span>* <span style="color: #a0522d;">index</span> = CALLOC(size_ranked, uint16_t);
+      <span style="color: #a020f0;">if</span> (index == <span style="color: #008b8b;">NULL</span>) <span style="color: #a020f0;">return</span> TREXIO_ALLOCATION_FAILED;
+      index_p = index;
+    } <span style="color: #a020f0;">else</span> {
+      index_p = data_sparse;
+    }
+  }
+
+  <span style="color: #228b22;">herr_t</span> <span style="color: #a0522d;">status</span> = H5Sselect_hyperslab(fspace_id, H5S_SELECT_SET, offset_file, <span style="color: #008b8b;">NULL</span>, size_read, <span style="color: #008b8b;">NULL</span>);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) {
+    H5Sclose(fspace_id);
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">if</span> (index_p != data_sparse) FREE(index_p);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  <span style="color: #228b22;">hid_t</span> <span style="color: #a0522d;">memspace_id</span> = H5Screate_simple(h5_rank, size_read, <span style="color: #008b8b;">NULL</span>);
+  <span style="color: #a020f0;">if</span> (memspace_id &lt; 0) {
+    H5Sclose(fspace_id);
+    H5Dclose(dset_id);
+    <span style="color: #a020f0;">if</span> (index_p != data_sparse) FREE(index_p);
+    <span style="color: #a020f0;">return</span> TREXIO_INVALID_ID;
+  }
+
+  <span style="color: #a020f0;">if</span> (is_index == 1) {
+    status = H5Dread(dset_id,
+                     dtype,
+                     memspace_id, fspace_id, H5P_DEFAULT,
+                     index_p);
+  } <span style="color: #a020f0;">else</span> {
+    status = H5Dread(dset_id,
+                     dtype,
+                     memspace_id, fspace_id, H5P_DEFAULT,
+                     data_sparse);
+  }
+
+  H5Sclose(fspace_id);
+  H5Sclose(memspace_id);
+  H5Dclose(dset_id);
+  <span style="color: #a020f0;">if</span> (status &lt; 0) {
+    <span style="color: #a020f0;">if</span> (index_p != data_sparse) FREE(index_p);
+    <span style="color: #a020f0;">return</span> TREXIO_FAILURE;
+  }
+
+  <span style="color: #a020f0;">if</span> (is_index == 1) {
+    <span style="color: #a020f0;">if</span> (H5Tequal(dtype, H5T_NATIVE_UINT8) &gt; 0) {
+      <span style="color: #228b22;">uint8_t</span>* <span style="color: #a0522d;">index</span> = (<span style="color: #228b22;">uint8_t</span>*) index_p;
+      <span style="color: #a020f0;">for</span> (<span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">i</span>=0; i&lt;size_ranked; ++i){
+        ((<span style="color: #228b22;">int32_t</span>*)data_sparse)[i] = (<span style="color: #228b22;">int32_t</span>) index[i];
+      }
+      FREE(index_p);
+    } <span style="color: #a020f0;">else</span> <span style="color: #a020f0;">if</span> (H5Tequal(dtype, H5T_NATIVE_UINT16) &gt; 0) {
+      <span style="color: #228b22;">uint16_t</span>* <span style="color: #a0522d;">index</span> = (<span style="color: #228b22;">uint16_t</span>*) index_p;
+      <span style="color: #a020f0;">for</span> (<span style="color: #228b22;">uint64_t</span> <span style="color: #a0522d;">i</span>=0; i&lt;size_ranked; ++i){
+        ((<span style="color: #228b22;">int32_t</span>*)data_sparse)[i] = (<span style="color: #228b22;">int32_t</span>) index[i];
+      }
+      FREE(index_p);
+    }
+  }
+
+  <span style="color: #a020f0;">if</span> (is_EOF == 1) <span style="color: #a020f0;">return</span> TREXIO_END;
+
+  <span style="color: #a020f0;">return</span> TREXIO_SUCCESS;
+}
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: TREX-CoE</p>
-<p class="date">Created: 2021-07-23 Fri 14:27</p>
+<p class="date">Created: 2022-01-07 Fri 10:20</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
