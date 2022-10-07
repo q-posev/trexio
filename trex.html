@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-01-07 Fri 17:33 -->
+<!-- 2022-10-07 Fri 13:13 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>TREX Configuration file</title>
@@ -333,33 +333,38 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgb7b8b80">1. Metadata (metadata group)</a></li>
-<li><a href="#org62fedfd">2. Electron (electron group)</a></li>
-<li><a href="#org42fa054">3. Nucleus (nucleus group)</a></li>
-<li><a href="#orgd4e38eb">4. Effective core potentials (ecp group)</a>
+<li><a href="#org2e9fd67">1. Metadata (metadata group)</a></li>
+<li><a href="#orgdc73f30">2. Electron (electron group)</a></li>
+<li><a href="#org3e4a47a">3. Nucleus (nucleus group)</a></li>
+<li><a href="#org27638db">4. Effective core potentials (ecp group)</a>
 <ul>
-<li><a href="#org0b39cfe">4.1. Example</a></li>
+<li><a href="#org96514a4">4.1. Example</a></li>
 </ul>
 </li>
-<li><a href="#org1220b69">5. Basis set (basis group)</a>
+<li><a href="#orgdf1d90f">5. Basis set (basis group)</a>
 <ul>
-<li><a href="#org8389edb">5.1. Example</a></li>
+<li><a href="#orgdb84d48">5.1. Example</a></li>
 </ul>
 </li>
-<li><a href="#org3bf274a">6. Atomic orbitals (ao group)</a>
+<li><a href="#org79efb44">6. Atomic orbitals (ao group)</a>
 <ul>
 <li><a href="#ao_one_e">6.1. One-electron integrals (<code>ao_1e_int</code> group)</a></li>
 <li><a href="#ao_two_e">6.2. Two-electron integrals (<code>ao_2e_int</code> group)</a></li>
 </ul>
 </li>
-<li><a href="#org821659b">7. Molecular orbitals (mo group)</a>
+<li><a href="#org659812c">7. Molecular orbitals (mo group)</a>
 <ul>
-<li><a href="#orgd81d804">7.1. One-electron integrals (<code>mo_1e_int</code> group)</a></li>
-<li><a href="#orge4eb485">7.2. Two-electron integrals (<code>mo_2e_int</code> group)</a></li>
+<li><a href="#orgf9a9628">7.1. One-electron integrals (<code>mo_1e_int</code> group)</a></li>
+<li><a href="#org3db8fb5">7.2. Two-electron integrals (<code>mo_2e_int</code> group)</a></li>
 </ul>
 </li>
-<li><a href="#org64f70c6">8. <span class="todo TODO">TODO</span> Slater determinants</a></li>
-<li><a href="#orgb1707e5">9. Reduced density matrices (rdm group)</a></li>
+<li><a href="#org2bfcbbb">8. Slater determinants (determinant group)</a></li>
+<li><a href="#orgac32210">9. Configuration state functions (csf group)</a></li>
+<li><a href="#org90bd275">10. Excited states (state group)</a></li>
+<li><a href="#orgbcfc53d">11. Reduced density matrices (rdm group)</a></li>
+<li><a href="#org3209327">12. Cell (cell group)</a></li>
+<li><a href="#org912174e">13. Periodic boundary calculations (pbc group)</a></li>
+<li><a href="#orgcdba810">14. Quantum Monte Carlo data (qmc group)</a></li>
 </ul>
 </div>
 </div>
@@ -367,18 +372,12 @@ for the JavaScript code in this tag.
 This page contains information about the general structure of the
 TREXIO library. The source code of the library can be automatically
 generated based on the contents of the <code>trex.json</code> configuration file,
-which itself is compiled from different sections (groups) presented
+which itself is generated from different sections (groups) presented
 below.
 </p>
 
 <p>
-For more information about the automatic generation on the source code
-or regarding possible modifications, please contact the TREXIO
-developers.
-</p>
-
-<p>
-All quantities are saved in TREXIO file in atomic units. The
+All quantities are saved in TREXIO files in atomic units. The
 dimensions of the arrays in the tables below are given in column-major
 order (as in Fortran), and the ordering of the dimensions is reversed
 in the produced <code>trex.json</code> configuration file as the library is
@@ -389,16 +388,20 @@ written in C.
 TREXIO currently supports <code>int</code>, <code>float</code> and <code>str</code> types for both
 single attributes and arrays.  Note, that some attributes might have
 <code>dim</code> type (e.g. <code>num</code> of the <code>nucleus</code> group).  This type is treated
-exactly the same as <code>int</code> with the only difference that <code>dim</code>
+exactly in the same way as <code>int</code> with the only difference that <code>dim</code>
 variables cannot be negative. This additional constraint is required
 because <code>dim</code> attributes are used internally to allocate memory and to
 check array boundaries in the memory-safe API. Most of the times, the
 <code>dim</code> variables contain the <code>num</code> suffix.
+You may also encounter some <code>dim readonly</code> variables.
+It means that the value is automatically computed and written by the
+TREXIO library, thus it is read-only and cannot be (over)written by the
+user.
 </p>
 
 <p>
-In Fortran, the arrays are 1-based and in most other languages the
-arrays are 0-based. Hence, we introduce the <code>index</code> type which is an
+In Fortran, arrays are 1-based and in most other languages the
+arrays are 0-based. Hence, we introduce the <code>index</code> type which is a
 1-based <code>int</code> in the Fortran interface and 0-based otherwise.
 </p>
 
@@ -406,11 +409,25 @@ arrays are 0-based. Hence, we introduce the <code>index</code> type which is an
 For sparse data structures such as electron replusion integrals,
 the data can be too large to fit in memory and the data needs to be
 fetched using multiple function calls to perform I/O on buffers.
+For more information on how to read/write sparse data structures, see
+the <a href="./examples.html">examples</a>. The <code>sparse</code> data representation implies the
+<a href="https://en.wikipedia.org/wiki/Sparse_matrix#Coordinate_list_(COO)">coordinate list</a> representation, namely the user has to write a list
+of indices and values.
 </p>
 
+<p>
+For the Configuration Interfaction (CI) and Configuration State Function (CSF)
+groups, the <code>buffered</code> data type is introduced, which allows similar incremental
+I/O as for <code>sparse</code> data but without the need to write indices of the sparse values.
+</p>
 
-<div id="outline-container-orgb7b8b80" class="outline-2">
-<h2 id="orgb7b8b80"><span class="section-number-2">1</span> Metadata (metadata group)</h2>
+<p>
+For determinant lists (integer bit fields), the <code>special</code> attribute is present in the type.
+This means that the source code is not produced by the generator, but hand-written.
+</p>
+
+<div id="outline-container-org2e9fd67" class="outline-2">
+<h2 id="org2e9fd67"><span class="section-number-2">1</span> Metadata (metadata group)</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 As we expect our files to be archived in open-data repositories, we
@@ -420,7 +437,7 @@ which have participated to the creation of the file, a list of
 authors of the file, and a textual description.
 </p>
 
-<table id="orgcee1113" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orge4ca561" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -482,20 +499,34 @@ authors of the file, and a textual description.
 <td class="org-left">&#xa0;</td>
 <td class="org-left">Text describing the content of file</td>
 </tr>
+
+<tr>
+<td class="org-left"><code>unsafe</code></td>
+<td class="org-left"><code>int</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left"><code>1</code>: true, <code>0</code>: false</td>
+</tr>
 </tbody>
 </table>
+
+<p>
+<b><b>Note:</b></b> <code>unsafe</code> attribute of the <code>metadata</code> group indicates whether the file has been previously opened with <code>'u'</code> mode.
+It is automatically written in the file upon the first unsafe opening.
+If the user has checked that the TREXIO file is valid (e.g. using <code>trexio-tools</code>) after unsafe operations,
+then the <code>unsafe</code> attribute value can be manually overwritten (in unsafe mode) from <code>1</code> to <code>0</code>.
+</p>
 </div>
 </div>
 
-<div id="outline-container-org62fedfd" class="outline-2">
-<h2 id="org62fedfd"><span class="section-number-2">2</span> Electron (electron group)</h2>
+<div id="outline-container-orgdc73f30" class="outline-2">
+<h2 id="orgdc73f30"><span class="section-number-2">2</span> Electron (electron group)</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 We consider wave functions expressed in the spin-free formalism, where
 the number of &uarr; and &darr; electrons is fixed.
 </p>
 
-<table id="orge6d85ff" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orga5664ec" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -517,6 +548,13 @@ the number of &uarr; and &darr; electrons is fixed.
 </thead>
 <tbody>
 <tr>
+<td class="org-left"><code>num</code></td>
+<td class="org-left"><code>dim</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Number of electrons</td>
+</tr>
+
+<tr>
 <td class="org-left"><code>up_num</code></td>
 <td class="org-left"><code>int</code></td>
 <td class="org-left">&#xa0;</td>
@@ -534,15 +572,15 @@ the number of &uarr; and &darr; electrons is fixed.
 </div>
 </div>
 
-<div id="outline-container-org42fa054" class="outline-2">
-<h2 id="org42fa054"><span class="section-number-2">3</span> Nucleus (nucleus group)</h2>
+<div id="outline-container-org3e4a47a" class="outline-2">
+<h2 id="org3e4a47a"><span class="section-number-2">3</span> Nucleus (nucleus group)</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 The nuclei are considered as fixed point charges. Coordinates are
 given in Cartesian \((x,y,z)\) format.
 </p>
 
-<table id="org7534d9c" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org2ba570e" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -609,8 +647,8 @@ given in Cartesian \((x,y,z)\) format.
 </div>
 </div>
 
-<div id="outline-container-orgd4e38eb" class="outline-2">
-<h2 id="orgd4e38eb"><span class="section-number-2">4</span> Effective core potentials (ecp group)</h2>
+<div id="outline-container-org27638db" class="outline-2">
+<h2 id="org27638db"><span class="section-number-2">4</span> Effective core potentials (ecp group)</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 An effective core potential (ECP) \(V_A^{\text{ECP}}\) replacing the
@@ -620,7 +658,7 @@ core electrons of atom \(A\) can be expressed as
   V_{A \ell_{\max}+1} +
   \sum_{\ell=0}^{\ell_{\max}}
   \sum_{m=-\ell}^{\ell} | Y_{\ell m} \rangle \left[
-  V_{A \ell} - V_{A \ell_{\max}+1} \right] \langle Y_{\ell m} | 
+  V_{A \ell} - V_{A \ell_{\max}+1} \right] \langle Y_{\ell m} |
   \]
 </p>
 
@@ -643,7 +681,7 @@ The functions \(V_{A\ell}\) are parameterized as:
 See <a href="http://dx.doi.org/10.1063/1.4984046">http://dx.doi.org/10.1063/1.4984046</a> or <a href="https://doi.org/10.1063/1.5121006">https://doi.org/10.1063/1.5121006</a> for more info.
 </p>
 
-<table id="orga02253b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgf27f296" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -724,38 +762,42 @@ See <a href="http://dx.doi.org/10.1063/1.4984046">http://dx.doi.org/10.1063/1.49
 
 
 <p>
-There might be some confusion in the meaning of the \(\ell_{\max}\). 
-It can be attributed to the maximum angular momentum occupied 
+There might be some confusion in the meaning of the \(\ell_{\max}\).
+It can be attributed to the maximum angular momentum occupied
 in the core orbitals, which are removed by the ECP.
-On the other hand, it can be attributed to the maximum angular momentum of the 
-ECP that replaces the core electrons. 
+On the other hand, it can be attributed to the maximum angular momentum of the
+ECP that replaces the core electrons.
 <b>Note</b>, that the latter \(\ell_{\max}\) is always higher by 1 than the former.
 </p>
 
 
 <p>
-<b>Note for developers</b>: avoid having variables with similar prefix in their name. 
+<b>Note for developers</b>: avoid having variables with similar prefix in their name.
 HDF5 back end might cause issues due to the way <code>find_dataset</code> function works.
-For example, in the ECP group we use <code>max_ang_mom</code> and not <code>ang_mom_max</code>. 
-The latter causes issues when written before <code>ang_mom</code> in the TREXIO file.
+For example, in the ECP group we use <code>max_ang_mom</code> and not <code>ang_mom_max</code>.
+The latter causes issues when written before the <code>ang_mom</code> array in the TREXIO file.
+<b>Update</b>: in fact, the aforementioned issue has only been observed when using HDF5 version 1.10.4
+installed via <code>apt-get</code>. Installing the same version from the <code>conda-forge</code> channel and running it in
+an isolated <code>conda</code> environment works just fine. Thus, it seems to be a bug in the <code>apt</code>-provided package.
+If you encounter the aforementioned issue, please report it to our <a href="https://github.com/TREX-CoE/trexio/issues">issue tracker on GitHub</a>.
 </p>
 </div>
 
-<div id="outline-container-org0b39cfe" class="outline-3">
-<h3 id="org0b39cfe"><span class="section-number-3">4.1</span> Example</h3>
+<div id="outline-container-org96514a4" class="outline-3">
+<h3 id="org96514a4"><span class="section-number-3">4.1</span> Example</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
-For example, consider H<sub>2</sub> molecule with the following 
-<a href="https://pseudopotentiallibrary.org/recipes/H/ccECP/H.ccECP.gamess">effective core potential</a> 
+For example, consider H<sub>2</sub> molecule with the following
+<a href="https://pseudopotentiallibrary.org/recipes/H/ccECP/H.ccECP.gamess">effective core potential</a>
 (in GAMESS input format for the H atom):
 </p>
 
 <pre class="example">
 H-ccECP GEN 0 1
 3
-1.00000000000000    1 21.24359508259891 
-21.24359508259891   3 21.24359508259891 
--10.85192405303825  2 21.77696655044365 
+1.00000000000000    1 21.24359508259891
+21.24359508259891   3 21.24359508259891
+-10.85192405303825  2 21.77696655044365
 1
 0.00000000000000    2 1.000000000000000
 </pre>
@@ -779,7 +821,7 @@ nucleus_index = [
   1, 1, 1, 1
   ]
 
-# 3 first ECP elements correspond to potential of the P orbital (l=1), then 1 element for the S orbital (l=0) ; similar for the second H atom 
+# 3 first ECP elements correspond to potential of the P orbital (l=1), then 1 element for the S orbital (l=0) ; similar for the second H atom
 ang_mom = [
   1, 1, 1, 0,
   1, 1, 1, 0
@@ -791,13 +833,13 @@ coefficient = [
   1.00000000000000, 21.24359508259891, -10.85192405303825, 0.00000000000000
   ]
 
-exponent = [ 
+exponent = [
   21.24359508259891, 21.24359508259891, 21.77696655044365, 1.000000000000000,
   21.24359508259891, 21.24359508259891, 21.77696655044365, 1.000000000000000
   ]
 
-power = [ 
-  -1, 1, 0, 0, 
+power = [
+  -1, 1, 0, 0,
   -1, 1, 0, 0
   ]
 </pre>
@@ -805,8 +847,8 @@ power = [
 </div>
 </div>
 
-<div id="outline-container-org1220b69" class="outline-2">
-<h2 id="org1220b69"><span class="section-number-2">5</span> Basis set (basis group)</h2>
+<div id="outline-container-orgdf1d90f" class="outline-2">
+<h2 id="orgdf1d90f"><span class="section-number-2">5</span> Basis set (basis group)</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 We consider here basis functions centered on nuclei. Hence, we enable
@@ -859,7 +901,7 @@ If the the basis function is not considered normalized, \(\mathcal{N}_s=1\).
 All the basis set parameters are stored in one-dimensional arrays:
 </p>
 
-<table id="org0601365" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org2decb86" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -953,8 +995,8 @@ All the basis set parameters are stored in one-dimensional arrays:
 </table>
 </div>
 
-<div id="outline-container-org8389edb" class="outline-3">
-<h3 id="org8389edb"><span class="section-number-3">5.1</span> Example</h3>
+<div id="outline-container-orgdb84d48" class="outline-3">
+<h3 id="orgdb84d48"><span class="section-number-3">5.1</span> Example</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 For example, consider H<sub>2</sub> with the following basis set (in GAMESS
@@ -991,34 +1033,34 @@ prim_num   = 20
 shell_num   = 12
 
 # 6 shells per H atom
-nucleus_index = 
-[ 0, 0, 0, 0, 0, 0,  
-  1, 1, 1, 1, 1, 1 ] 
+nucleus_index =
+[ 0, 0, 0, 0, 0, 0,
+  1, 1, 1, 1, 1, 1 ]
 
 # 3 shells in S (l=0), 2 in P (l=1), 1 in D (l=2)
 shell_ang_mom =
-[ 0, 0, 0, 1, 1, 2, 
+[ 0, 0, 0, 1, 1, 2,
   0, 0, 0, 1, 1, 2 ]
 
-# no need to renormalize shells 
-shell_factor = 
-[ 1., 1., 1., 1., 1., 1.,  
-  1., 1., 1., 1., 1., 1. ] 
+# no need to renormalize shells
+shell_factor =
+[ 1., 1., 1., 1., 1., 1.,
+  1., 1., 1., 1., 1., 1. ]
 
 # 5 primitives for the first S shell and then 1 primitive per remaining shells in each H atom
-shell_index = 
-[ 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 
+shell_index =
+[ 0, 0, 0, 0, 0, 1, 2, 3, 4, 5,
   6, 6, 6, 6, 6, 7, 8, 9, 10, 11 ]
 
 # parameters of the primitives (10 per H atom)
 exponent =
-[ 33.87, 5.095, 1.159, 0.3258, 0.1027, 0.3258, 0.1027, 1.407, 0.388, 1.057, 
+[ 33.87, 5.095, 1.159, 0.3258, 0.1027, 0.3258, 0.1027, 1.407, 0.388, 1.057,
   33.87, 5.095, 1.159, 0.3258, 0.1027, 0.3258, 0.1027, 1.407, 0.388, 1.057 ]
 
 coefficient =
-[ 0.006068, 0.045308, 0.202822, 0.503903, 0.383421, 1.0, 1.0, 1.0, 1.0, 1.0, 
+[ 0.006068, 0.045308, 0.202822, 0.503903, 0.383421, 1.0, 1.0, 1.0, 1.0, 1.0,
   0.006068, 0.045308, 0.202822, 0.503903, 0.383421, 1.0, 1.0, 1.0, 1.0, 1.0 ]
-
+`
 prim_factor =
 [ 1.0006253235944540e+01, 2.4169531573445120e+00, 7.9610924849766440e-01
   3.0734305383061117e-01, 1.2929684417481876e-01, 3.0734305383061117e-01,
@@ -1032,16 +1074,17 @@ prim_factor =
 </div>
 </div>
 
-<div id="outline-container-org3bf274a" class="outline-2">
-<h2 id="org3bf274a"><span class="section-number-2">6</span> Atomic orbitals (ao group)</h2>
+<div id="outline-container-org79efb44" class="outline-2">
+<h2 id="org79efb44"><span class="section-number-2">6</span> Atomic orbitals (ao group)</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Going from the atomic basis set to AOs implies a systematic
 construction of all the angular functions of each shell.  We
 consider two cases for the angular functions: the real-valued
 spherical harmonics, and the polynomials in Cartesian coordinates.
-In the case of spherical harmonics, the AOs are ordered as
-\(0, +1, -1, +2, -2, \dots, +m, -m\) and in the case of polynomials we
+In the case of real spherical harmonics, the AOs are ordered as
+\(0, +1, -1, +2, -2, \dots, +m, -m\) (see <a href="https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics">Wikipedia</a>).
+In the case of polynomials we
 impose the canonical (or alphabetical) ordering), i.e
 </p>
 
@@ -1085,13 +1128,13 @@ shell, as in the GAMESS convention where
 
 <p>
 In such a case, one should set the normalization of the shell (in
-the <a href="#org1220b69">Basis set</a> section) to \(\mathcal{N}_{z^2}\), which is the
+the <a href="#orgdf1d90f">Basis set</a> section) to \(\mathcal{N}_{z^2}\), which is the
 normalization factor of the atomic orbitals in spherical coordinates.
 The normalization factor of the \(xy\) function which should be
 introduced here should be \(\frac{\mathcal{N}_{xy}}{\mathcal{N}_{z^2}}\).
 </p>
 
-<table id="org3e2da63" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgcd6f0a5" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -1143,8 +1186,8 @@ introduced here should be \(\frac{\mathcal{N}_{xy}}{\mathcal{N}_{z^2}}\).
 </table>
 </div>
 
-<div id="outline-container-org11c8221" class="outline-3">
-<h3 id="ao_one_e"><a id="org11c8221"></a><span class="section-number-3">6.1</span> One-electron integrals (<code>ao_1e_int</code> group)</h3>
+<div id="outline-container-orgaa23687" class="outline-3">
+<h3 id="ao_one_e"><a id="orgaa23687"></a><span class="section-number-3">6.1</span> One-electron integrals (<code>ao_1e_int</code> group)</h3>
 <div class="outline-text-3" id="text-ao_one_e">
 <ul class="org-ul">
 <li>\[ \hat{V}_{\text{ne}} = \sum_{A=1}^{N_\text{nucl}}
@@ -1152,8 +1195,7 @@ introduced here should be \(\frac{\mathcal{N}_{xy}}{\mathcal{N}_{z^2}}\).
      \mathbf{r}_i \vert} \] : electron-nucleus attractive potential,</li>
 <li>\[ \hat{T}_{\text{e}} =
      \sum_{i=1}^{N_\text{elec}} -\frac{1}{2}\hat{\Delta}_i \] : electronic kinetic energy</li>
-<li>\(\hat{h} = \hat{T}_\text{e} + \hat{V}_\text{ne} +
-     \hat{V}_\text{ecp,l} + \hat{V}_\text{ecp,nl}\) : core electronic Hamiltonian</li>
+<li>\(\hat{h} = \hat{T}_\text{e} + \hat{V}_\text{ne} + \hat{V}_\text{ECP}\) : core electronic Hamiltonian</li>
 </ul>
 
 <p>
@@ -1162,7 +1204,7 @@ The one-electron integrals for a one-electron operator \(\hat{O}\) are
 over atomic orbitals.
 </p>
 
-<table id="org42a38aa" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgd2d9b60" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -1187,50 +1229,78 @@ over atomic orbitals.
 <td class="org-left"><code>overlap</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(ao.num, ao.num)</code></td>
-<td class="org-left">\(\langle p \vert q \rangle\)</td>
+<td class="org-left">\(\langle p \vert q \rangle\)  (real part, general case)</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>kinetic</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(ao.num, ao.num)</code></td>
-<td class="org-left">\(\langle p \vert \hat{T}_e \vert q \rangle\)</td>
+<td class="org-left">\(\langle p \vert \hat{T}_e \vert q \rangle\)  (real part, general case)</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>potential_n_e</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(ao.num, ao.num)</code></td>
-<td class="org-left">\(\langle p \vert \hat{V}_{\text{ne}} \vert q \rangle\)</td>
+<td class="org-left">\(\langle p \vert \hat{V}_{\text{ne}} \vert q \rangle\)  (real part, general case)</td>
 </tr>
 
 <tr>
-<td class="org-left"><code>ecp_local</code></td>
+<td class="org-left"><code>ecp</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(ao.num, ao.num)</code></td>
-<td class="org-left">\(\langle p \vert \hat{V}_{\text{ecp,l}} \vert q \rangle\)</td>
-</tr>
-
-<tr>
-<td class="org-left"><code>ecp_non_local</code></td>
-<td class="org-left"><code>float</code></td>
-<td class="org-left"><code>(ao.num, ao.num)</code></td>
-<td class="org-left">\(\langle p \vert \hat{V}_{\text{ecp,nl}} \vert q \rangle\)</td>
+<td class="org-left">\(\langle p \vert \hat{V}_{\text{ecp}} \vert q \rangle\)  (real part, general case)</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>core_hamiltonian</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(ao.num, ao.num)</code></td>
-<td class="org-left">\(\langle p \vert \hat{h} \vert q \rangle\)</td>
+<td class="org-left">\(\langle p \vert \hat{h} \vert q \rangle\)  (real part, general case)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>overlap_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(ao.num, ao.num)</code></td>
+<td class="org-left">\(\langle p \vert q \rangle\) (imaginary part)  (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>kinetic_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(ao.num, ao.num)</code></td>
+<td class="org-left">\(\langle p \vert \hat{T}_e \vert q \rangle\)   (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>potential_n_e_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(ao.num, ao.num)</code></td>
+<td class="org-left">\(\langle p \vert \hat{V}_{\text{ne}} \vert q \rangle\)  (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>ecp_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(ao.num, ao.num)</code></td>
+<td class="org-left">\(\langle p \vert \hat{V}_{\text{ECP}} \vert q \rangle\)  (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>core_hamiltonian_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(ao.num, ao.num)</code></td>
+<td class="org-left">\(\langle p \vert \hat{h} \vert q \rangle\) (imaginary part)</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 
-<div id="outline-container-org0ac23a5" class="outline-3">
-<h3 id="ao_two_e"><a id="org0ac23a5"></a><span class="section-number-3">6.2</span> Two-electron integrals (<code>ao_2e_int</code> group)</h3>
+<div id="outline-container-orgae9572c" class="outline-3">
+<h3 id="ao_two_e"><a id="orgae9572c"></a><span class="section-number-3">6.2</span> Two-electron integrals (<code>ao_2e_int</code> group)</h3>
 <div class="outline-text-3" id="text-ao_two_e">
 <p>
 The two-electron integrals for a two-electron operator \(\hat{O}\) are
@@ -1251,7 +1321,7 @@ notation.
      \mathbf{r}_j \vert)}{\vert \mathbf{r}_i - \mathbf{r}_j \vert} \] : electron-electron long range potential</li>
 </ul>
 
-<table id="org7842ad8" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgf6663a8" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -1291,10 +1361,10 @@ notation.
 </div>
 </div>
 
-<div id="outline-container-org821659b" class="outline-2">
-<h2 id="org821659b"><span class="section-number-2">7</span> Molecular orbitals (mo group)</h2>
+<div id="outline-container-org659812c" class="outline-2">
+<h2 id="org659812c"><span class="section-number-2">7</span> Molecular orbitals (mo group)</h2>
 <div class="outline-text-2" id="text-7">
-<table id="org0190b86" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgc72439d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -1333,7 +1403,14 @@ notation.
 <td class="org-left"><code>coefficient</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(ao.num, mo.num)</code></td>
-<td class="org-left">MO coefficients</td>
+<td class="org-left">MO coefficients (real part, general case)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>coefficient_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(ao.num, mo.num)</code></td>
+<td class="org-left">MO coefficients (imaginary part, for periodic calculations)</td>
 </tr>
 
 <tr>
@@ -1356,12 +1433,26 @@ notation.
 <td class="org-left"><code>(mo.num)</code></td>
 <td class="org-left">Occupation number</td>
 </tr>
+
+<tr>
+<td class="org-left"><code>energy</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(mo.num)</code></td>
+<td class="org-left">For canonical MOs, corresponding eigenvalue</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>spin</code></td>
+<td class="org-left"><code>int</code></td>
+<td class="org-left"><code>(mo.num)</code></td>
+<td class="org-left">For UHF wave functions, 0 is \(\alpha\) and 1 is \(\beta\)</td>
+</tr>
 </tbody>
 </table>
 </div>
 
-<div id="outline-container-orgd81d804" class="outline-3">
-<h3 id="orgd81d804"><span class="section-number-3">7.1</span> One-electron integrals (<code>mo_1e_int</code> group)</h3>
+<div id="outline-container-orgf9a9628" class="outline-3">
+<h3 id="orgf9a9628"><span class="section-number-3">7.1</span> One-electron integrals (<code>mo_1e_int</code> group)</h3>
 <div class="outline-text-3" id="text-7-1">
 <p>
 The operators as the same as those defined in the
@@ -1369,7 +1460,7 @@ The operators as the same as those defined in the
 the basis of molecular orbitals.
 </p>
 
-<table id="org7e9555c" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org2f4f684" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -1394,50 +1485,78 @@ the basis of molecular orbitals.
 <td class="org-left"><code>overlap</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(mo.num, mo.num)</code></td>
-<td class="org-left">\(\langle i \vert j \rangle\)</td>
+<td class="org-left">\(\langle i \vert j \rangle\)  (real part, general case)</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>kinetic</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(mo.num, mo.num)</code></td>
-<td class="org-left">\(\langle i \vert \hat{T}_e \vert j \rangle\)</td>
+<td class="org-left">\(\langle i \vert \hat{T}_e \vert j \rangle\) (real part, general case)</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>potential_n_e</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(mo.num, mo.num)</code></td>
-<td class="org-left">\(\langle i \vert \hat{V}_{\text{ne}} \vert j \rangle\)</td>
+<td class="org-left">\(\langle i \vert \hat{V}_{\text{ne}} \vert j \rangle\)  (real part, general case)</td>
 </tr>
 
 <tr>
-<td class="org-left"><code>ecp_local</code></td>
+<td class="org-left"><code>ecp</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(mo.num, mo.num)</code></td>
-<td class="org-left">\(\langle i \vert \hat{V}_{\text{ecp,l}} \vert j \rangle\)</td>
-</tr>
-
-<tr>
-<td class="org-left"><code>ecp_non_local</code></td>
-<td class="org-left"><code>float</code></td>
-<td class="org-left"><code>(mo.num, mo.num)</code></td>
-<td class="org-left">\(\langle i \vert \hat{V}_{\text{ecp,nl}} \vert j \rangle\)</td>
+<td class="org-left">\(\langle i \vert \hat{V}_{\text{ECP}} \vert j \rangle\)  (real part, general case)</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>core_hamiltonian</code></td>
 <td class="org-left"><code>float</code></td>
 <td class="org-left"><code>(mo.num, mo.num)</code></td>
-<td class="org-left">\(\langle i \vert \hat{h} \vert j \rangle\)</td>
+<td class="org-left">\(\langle i \vert \hat{h} \vert j \rangle\)  (real part, general case)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>overlap_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(mo.num, mo.num)</code></td>
+<td class="org-left">\(\langle i \vert j \rangle\) (imaginary part)  (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>kinetic_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(mo.num, mo.num)</code></td>
+<td class="org-left">\(\langle i \vert \hat{T}_e \vert j \rangle\)   (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>potential_n_e_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(mo.num, mo.num)</code></td>
+<td class="org-left">\(\langle i \vert \hat{V}_{\text{ne}} \vert j \rangle\)  (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>ecp_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(mo.num, mo.num)</code></td>
+<td class="org-left">\(\langle i \vert \hat{V}_{\text{ECP}} \vert j \rangle\)  (imaginary part)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>core_hamiltonian_im</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(mo.num, mo.num)</code></td>
+<td class="org-left">\(\langle i \vert \hat{h} \vert j \rangle\) (imaginary part)</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 
-<div id="outline-container-orge4eb485" class="outline-3">
-<h3 id="orge4eb485"><span class="section-number-3">7.2</span> Two-electron integrals (<code>mo_2e_int</code> group)</h3>
+<div id="outline-container-org3db8fb5" class="outline-3">
+<h3 id="org3db8fb5"><span class="section-number-3">7.2</span> Two-electron integrals (<code>mo_2e_int</code> group)</h3>
 <div class="outline-text-3" id="text-7-2">
 <p>
 The operators as the same as those defined in the
@@ -1445,7 +1564,7 @@ The operators as the same as those defined in the
 the basis of molecular orbitals.
 </p>
 
-<table id="org2cbd373" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgc2c0f68" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -1485,13 +1604,295 @@ the basis of molecular orbitals.
 </div>
 </div>
 
-<div id="outline-container-org64f70c6" class="outline-2">
-<h2 id="org64f70c6"><span class="section-number-2">8</span> <span class="todo TODO">TODO</span> Slater determinants</h2>
+<div id="outline-container-org2bfcbbb" class="outline-2">
+<h2 id="org2bfcbbb"><span class="section-number-2">8</span> Slater determinants (determinant group)</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+The configuration interaction (CI) wave function \(\Psi\)
+can be expanded in the basis of Slater determinants \(D_I\) as follows
+</p>
+
+<p>
+\[
+  \Psi = \sum_I C_I D_I
+  \]
+</p>
+
+<p>
+For relatively small expansions, a given determinant can be represented as a list of occupied orbitals.
+However, this becomes unfeasible for larger expansions and requires more advanced data structures.
+The bit field representation is used here, namely a given determinant is represented as \(N_{\text{int}}\)
+64-bit integers where j-th bit is set to 1 if there is an electron in the j-th orbital and 0 otherwise.
+This gives access to larger determinant expansions by optimising the storage of the determinant lists
+in the memory.
+</p>
+
+<p>
+\[
+  D_I = \alpha_1 \alpha_2 \ldots \alpha_{n_\uparrow} \beta_1 \beta_2 \ldots \beta_{n_\downarrow}
+  \]
+</p>
+
+<p>
+where \(\alpha\) and \(\beta\) denote &uarr;-spin and &darr;-spin electrons, respectively,
+\(n_\uparrow\) and \(n_\downarrow\) correspond to <code>electron.up_num</code> and <code>electron.dn_num</code>, respectively.
+</p>
+
+<p>
+Note: the <code>special</code> attribute is present in the types, meaning that the source node is not
+produced by the code generator.
+</p>
+
+<p>
+An illustration on how to read determinants is presented in the <a href="./examples.html">examples</a>.
+</p>
+
+<table id="orgdc24a8d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Variable</th>
+<th scope="col" class="org-left">Type</th>
+<th scope="col" class="org-left">Dimensions</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>num</code></td>
+<td class="org-left"><code>dim readonly</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Number of determinants</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>list</code></td>
+<td class="org-left"><code>int special</code></td>
+<td class="org-left"><code>(determinant.num)</code></td>
+<td class="org-left">List of determinants as integer bit fields</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>coefficient</code></td>
+<td class="org-left"><code>float buffered</code></td>
+<td class="org-left"><code>(determinant.num)</code></td>
+<td class="org-left">Coefficients of the determinants from the CI expansion</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="outline-container-orgb1707e5" class="outline-2">
-<h2 id="orgb1707e5"><span class="section-number-2">9</span> Reduced density matrices (rdm group)</h2>
+</div>
+
+<div id="outline-container-orgac32210" class="outline-2">
+<h2 id="orgac32210"><span class="section-number-2">9</span> Configuration state functions (csf group)</h2>
 <div class="outline-text-2" id="text-9">
-<table id="org5c5f2b9" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<p>
+The configuration interaction (CI) wave function \(\Psi\) can be
+expanded in the basis of <a href="https://en.wikipedia.org/wiki/Configuration_state_function">configuration state functions</a> (CSFs)
+\(\Psi_I\) as follows
+</p>
+
+<p>
+\[
+  \Psi = \sum_I C_I \psi_I.
+  \]
+</p>
+
+<p>
+Each CSF is a linear combination of Slater determinants. Slater
+determinants are stored in the <code>determinant</code> section. In this group
+we store the CI coefficients in the basis of CSFs, and the
+matrix \(\langle D_I | \psi_J \rangle\) needed to project the CSFs in
+the basis of Slater determinants.
+</p>
+
+<table id="org23bf30a" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Variable</th>
+<th scope="col" class="org-left">Type</th>
+<th scope="col" class="org-left">Dimensions</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>num</code></td>
+<td class="org-left"><code>dim readonly</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Number of CSFs</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>coefficient</code></td>
+<td class="org-left"><code>float buffered</code></td>
+<td class="org-left"><code>(csf.num)</code></td>
+<td class="org-left">Coefficients of the CSFs from the CI expansion</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>det_coefficient</code></td>
+<td class="org-left"><code>float sparse</code></td>
+<td class="org-left"><code>(determinant.num,csf.num)</code></td>
+<td class="org-left">Projection on the determinant basis</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org90bd275" class="outline-2">
+<h2 id="org90bd275"><span class="section-number-2">10</span> Excited states (state group)</h2>
+<div class="outline-text-2" id="text-10">
+<p>
+This group contains information about excited state. Since TREXIO version 2.3.0
+the state-specific data (e.g. CI/CSF coeffcients, RDMs) is written in a separate
+file in order to avoid over-complicated internal logics and global state switches.
+</p>
+
+<p>
+The <code>file_name</code> and <code>label</code> arrays have to be written only for the master file,
+e.g. the one containing the ground state wave function.
+The <code>id</code> and <code>current_label</code> attributes have to be specified for each file
+(containing both ground and excited state data).
+</p>
+
+<table id="org8574125" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Variable</th>
+<th scope="col" class="org-left">Type</th>
+<th scope="col" class="org-left">Dimensions</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>num</code></td>
+<td class="org-left"><code>dim</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Number of states (including the ground state)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>id</code></td>
+<td class="org-left"><code>int</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Index of a current state (0 is ground state)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>label</code></td>
+<td class="org-left"><code>str</code></td>
+<td class="org-left"><code>(state.num)</code></td>
+<td class="org-left">Labels of all states related to this file (e.g. 'S' for singlets)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>current_label</code></td>
+<td class="org-left"><code>str</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Labels of the current state that is in a file</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>file_name</code></td>
+<td class="org-left"><code>str</code></td>
+<td class="org-left"><code>(state.num)</code></td>
+<td class="org-left">Names of the TREXIO files linked to the current one (i.e. containing data for excited states)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgbcfc53d" class="outline-2">
+<h2 id="orgbcfc53d"><span class="section-number-2">11</span> Reduced density matrices (rdm group)</h2>
+<div class="outline-text-2" id="text-11">
+<p>
+The reduced density matrices are defined in the basis of molecular
+orbitals.
+</p>
+
+<p>
+The &uarr;-spin and &darr;-spin components of the one-body
+density matrix are given by
+</p>
+\begin{eqnarray*}
+  \gamma_{ij}^{\uparrow}   &=& \langle \Psi | \hat{a}^{\dagger}_{j\alpha}\, \hat{a}_{i\alpha} | \Psi \rangle \\
+  \gamma_{ij}^{\downarrow} &=& \langle \Psi | \hat{a}^{\dagger}_{j\beta} \, \hat{a}_{i\beta}  | \Psi \rangle
+\end{eqnarray*}
+<p>
+and the spin-summed one-body density matrix is
+\[
+  \gamma_{ij} = \gamma^{\uparrow}_{ij} + \gamma^{\downarrow}_{ij}
+  \]
+</p>
+
+<p>
+The \(\uparrow \uparrow\),  \(\downarrow \downarrow\), \(\uparrow \downarrow\), \(\downarrow \uparrow\)
+components of the two-body density matrix are given by
+</p>
+\begin{eqnarray*}
+  \Gamma_{ijkl}^{\uparrow \uparrow} &=&
+     \langle \Psi | \hat{a}^{\dagger}_{k\alpha}\, \hat{a}^{\dagger}_{l\alpha} \hat{a}_{j\alpha}\, \hat{a}_{i\alpha} | \Psi \rangle \\
+  \Gamma_{ijkl}^{\downarrow \downarrow} &=&
+     \langle \Psi | \hat{a}^{\dagger}_{k\beta}\, \hat{a}^{\dagger}_{l\beta} \hat{a}_{j\beta}\, \hat{a}_{i\beta} | \Psi \rangle \\
+  \Gamma_{ijkl}^{\uparrow \downarrow} &=&
+     \langle \Psi | \hat{a}^{\dagger}_{k\alpha}\, \hat{a}^{\dagger}_{l\beta} \hat{a}_{j\beta}\, \hat{a}_{i\alpha} | \Psi \rangle \\
+  \Gamma_{ijkl}^{\downarrow \uparrow} &=&
+     \langle \Psi | \hat{a}^{\dagger}_{k\beta}\, \hat{a}^{\dagger}_{l\alpha} \hat{a}_{j\alpha}\, \hat{a}_{i\beta} | \Psi \rangle \\
+\end{eqnarray*}
+<p>
+and the spin-summed one-body density matrix is
+\[
+  \Gamma_{ijkl} = \Gamma_{ijkl}^{\uparrow \uparrow} +
+    \Gamma_{ijkl}^{\downarrow \downarrow} + \Gamma_{ijkl}^{\uparrow \downarrow} +
+    \Gamma_{ijkl}^{\downarrow \uparrow}
+  \]
+</p>
+
+<p>
+The total energy can be computed as:
+\[
+  E = E_{\text{NN}} + \sum_{ij} \gamma_{ij} \langle j|h|i \rangle +
+      \frac{1}{2} \sum_{ijlk} \Gamma_{ijkl} \langle k l | i j \rangle
+  \]
+</p>
+
+<table id="org1414cd3" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -1560,6 +1961,172 @@ the basis of molecular orbitals.
 <td class="org-left"><code>(mo.num, mo.num, mo.num, mo.num)</code></td>
 <td class="org-left">&uarr;&darr; component of the two-body reduced density matrix</td>
 </tr>
+
+<tr>
+<td class="org-left"><code>2e_dnup</code></td>
+<td class="org-left"><code>float sparse</code></td>
+<td class="org-left"><code>(mo.num, mo.num, mo.num, mo.num)</code></td>
+<td class="org-left">&darr;&uarr; component of the two-body reduced density matrix</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org3209327" class="outline-2">
+<h2 id="org3209327"><span class="section-number-2">12</span> Cell (cell group)</h2>
+<div class="outline-text-2" id="text-12">
+<table id="org2e4c7a1" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Variable</th>
+<th scope="col" class="org-left">Type</th>
+<th scope="col" class="org-left">Dimensions</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>a</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(3)</code></td>
+<td class="org-left">First unit cell vector</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>b</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(3)</code></td>
+<td class="org-left">Second unit cell vector</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>c</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(3)</code></td>
+<td class="org-left">Third unit cell vector</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org912174e" class="outline-2">
+<h2 id="org912174e"><span class="section-number-2">13</span> Periodic boundary calculations (pbc group)</h2>
+<div class="outline-text-2" id="text-13">
+<table id="org99a2bb4" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Variable</th>
+<th scope="col" class="org-left">Type</th>
+<th scope="col" class="org-left">Dimensions</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>periodic</code></td>
+<td class="org-left"><code>int</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left"><code>1</code>: true or <code>0</code>: false</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>k_point</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(3)</code></td>
+<td class="org-left">k-point sampling</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-orgcdba810" class="outline-2">
+<h2 id="orgcdba810"><span class="section-number-2">14</span> Quantum Monte Carlo data (qmc group)</h2>
+<div class="outline-text-2" id="text-14">
+<p>
+In quantum Monte Carlo calculations, the wave function is evaluated
+at points of the 3N-dimensional space. Some algorithms require multiple
+independent <i>walkers</i>, so it is possible to store multiple coordinates,
+as well as some quantities evaluated at those points.
+</p>
+
+<p>
+By convention, the electron coordinates contain first all the electrons
+of $&uarr;$-spin and then all the $&darr;$-spin.
+</p>
+
+<table id="orgeb4aa5d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Variable</th>
+<th scope="col" class="org-left">Type</th>
+<th scope="col" class="org-left">Dimensions</th>
+<th scope="col" class="org-left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>num</code></td>
+<td class="org-left"><code>dim</code></td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Number of 3N-dimensional points</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>point</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(3, electron.num, qmc.num)</code></td>
+<td class="org-left">3N-dimensional points</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>psi</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(qmc.num)</code></td>
+<td class="org-left">Wave function evaluated at the points</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>e_loc</code></td>
+<td class="org-left"><code>float</code></td>
+<td class="org-left"><code>(qmc.num)</code></td>
+<td class="org-left">Local energy evaluated at the points</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1567,7 +2134,7 @@ the basis of molecular orbitals.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: TREX-CoE</p>
-<p class="date">Created: 2022-01-07 Fri 17:33</p>
+<p class="date">Created: 2022-10-07 Fri 13:13</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
